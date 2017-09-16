@@ -1,0 +1,32 @@
+program
+   min, max, milieu : integer ;          -- Indices de tableau
+   val,test : integer ;                       -- Valeur cherchee
+   trouve : boolean ;                    -- vrai lorsque la valeur est trouvee
+
+   begin
+   write("Joueur 1 -> Donne le _chiffre a trouver"" entre 0 et 100 :") ;
+   read(val) ;
+
+   min := 0 ;
+   max := 100 ;
+   trouve := false ;
+   while i /=10 and not trouve do
+		write("Proposition:");
+		read(test);
+		if test=val then
+			trouve := true;
+		else
+			if test < val then
+				write("c'est plus");
+			else
+				write("c'est moins");
+			end ;
+		end ;
+	end;
+	if trouve = true do
+		write("Gagner");
+	else
+		write("Perdu");
+
+	end ;
+end;

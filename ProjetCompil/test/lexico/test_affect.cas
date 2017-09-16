@@ -1,0 +1,10 @@
+program
+   min: integer ;
+chaine : String;
+begin
+ -- Test Commentaires
+ -- blablabla if else +3
+
+ min := 3;
+	chaine := "Collier...";
+end.

@@ -1,0 +1,17 @@
+program
+
+a,b,c,d : boolean;
+i : float;
+
+begin
+a := true;
+b := true;
+c := false;
+d := true;
+	if ( a or b ) and ( c and d ) then
+	-- Commentaire nul
+		i := 3.4;
+	else
+		i := 4.8e+4;
+	end
+end
