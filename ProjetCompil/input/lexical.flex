@@ -226,12 +226,22 @@ import java.util.Hashtable;
 // Définition des macros
 // -------------------------------------
 
-CHIFFRE        = [0-9]
-LETTRE         = [a-zA-Z]
+CHIFFRE     = [0-9]
+LETTRE      = [a-zA-Z]
 
-// ------------
-// A COMPLETER
-// ------------
+IDF         = {LETTRE}({LETTRE}|{CHIFFRE}|"_")*
+NUM         = {CHIFFRE}({CHIFFRE})*
+SIGNE       = [+-]?
+DEC         = "{NUM}.{NUM}"
+EXP         = ("E"{SIGNE}{NUM})|("e"{SIGNE}{NUM})
+
+INT         = {NUM}
+REEL        = "{DEC}|({DEC}{EXP})"
+
+CHAINE_CAR  = [\040\041\043-\176]
+CHAINE      = \042({CHAINE_CAR}|("\042\042"))*\042
+
+COMMENT     = "--"({CHAINE_CAR}|\t|\042)\n
 
 %%
 
@@ -239,17 +249,35 @@ LETTRE         = [a-zA-Z]
 // Debut de la partie "regles"
 // ---------------------------
 
-[ \t]+                 { }
+// Separateurs
+// -------------------
+[ \t]+          { }
+\n              { }
+COMMENT         { }
+// -------------------
 
-\n                     { }
+"+"             { return symbol(sym.PLUS); }
+"-"             { return symbol(sym.MOINS); }
+"*"             { return symbol(sym.MULT); }
+"/"             { return symbol(sym.DIV_REEL); }
+"<"             { return symbol(sym.INF); }
+">"             { return symbol(sym.SUP); }
+"="             { return symbol(sym.EGAL); }
+":"             { return symbol(sym.DEUX_POINTS); }
+":="             { return symbol(sym.AFFECT); }
+"["             { return symbol(sym.CROCH_OUVR); }
+"]"             { return symbol(sym.CROCH_FERM); }
+"."             { return symbol(sym.POINT); }
+","             { return symbol(sym.VIRGULE); }
+"("             { return symbol(sym.PAR_OUVR); }
+")"             { return symbol(sym.PAR_FERM); }
+";"             { return symbol(sym.MOINS); }
+".."             { return symbol(sym.DOUBLE_POINT); }
+"/="             { return symbol(sym.DIFF); }
+"<="             { return symbol(sym.INF_EGAL); }
+">="             { return symbol(sym.SUP_EGAL); }
 
-"+"                    { return symbol(sym.PLUS); }
-
-.                      { System.out.println("Erreur Lexicale : '" +
-                            yytext() + "' non reconnu ... ligne " + 
-                            numLigne()) ;
-                         throw new ErreurLexicale() ; }
-
-// ------------
-// A COMPLETER
-// ------------
+.               { System.out.println("Erreur Lexicale : '" +
+                    yytext() + "' non reconnu ... ligne " +
+                    numLigne()) ;
+                 throw new ErreurLexicale() ; }
