@@ -27,7 +27,7 @@ import java.util.Hashtable;
 // On crée un analyseur lexical compatible avec Cup.
 %cup
 
-// Active le comptage des lignes 
+// Active le comptage des lignes
 %line
 
 // Declaration des exceptions qui peuvent etre levees par l'analyseur lexical
@@ -37,11 +37,11 @@ import java.util.Hashtable;
 
 %{
    /**
-    * Le dictionnaire associe à chaque mot réservé le code du lexème 
+    * Le dictionnaire associe à chaque mot réservé le code du lexème
     * correspondant.
     */
-   private final Hashtable<String,Integer> 
-      dictionnaire = initialiserDictionnaire(); 
+   private final Hashtable<String,Integer>
+      dictionnaire = initialiserDictionnaire();
 
    /**
     * Initialisation du dictionnaire.
@@ -93,7 +93,7 @@ import java.util.Hashtable;
     */
    static String toString(int code_lexeme) {
       switch (code_lexeme) {
-         case sym.IDF: 
+         case sym.IDF:
             return "IDF";
          case sym.CONST_ENT:
             return "CONST_ENT";
@@ -230,7 +230,7 @@ CHIFFRE     = [0-9]
 LETTRE      = [a-zA-Z]
 
 IDF         = {LETTRE}({LETTRE}|{CHIFFRE}|"_")*
-NUM         = {CHIFFRE}({CHIFFRE})*
+NUM         = {CHIFFRE}+
 SIGNE       = [+-]?
 DEC         = "{NUM}.{NUM}"
 EXP         = ("E"{SIGNE}{NUM})|("e"{SIGNE}{NUM})
@@ -239,9 +239,9 @@ INT         = {NUM}
 REEL        = "{DEC}|({DEC}{EXP})"
 
 CHAINE_CAR  = [\040\041\043-\176]
-CHAINE      = \042({CHAINE_CAR}|("\042\042"))*\042
+CHAINE      = \042 ({CHAINE_CAR}|("\042\042"))* \042
 
-COMMENT     = "--"({CHAINE_CAR}|\t|\042)\n
+COMMENT     = "--"({CHAINE_CAR}|\t|\042)*
 
 %%
 
@@ -253,8 +253,29 @@ COMMENT     = "--"({CHAINE_CAR}|\t|\042)\n
 // -------------------
 [ \t]+          { }
 \n              { }
-COMMENT         { }
+{COMMENT}         { System.out.println("## Debug ## Commentaire : "+yytext());}
 // -------------------
+
+//{CHIFFRE}				{ }
+//{LETTRE}			{ }
+
+{IDF}				{   Integer x; Hashtable<String,Integer> dico = initialiserDictionnaire();
+                        if((x = dico.get(yytext())) != null){
+                            return symbol(x);
+                        }
+                        else{
+                            return symbol(sym.IDF, yytext());
+                        }
+                    }
+
+//{NUM}				{ }
+//{SIGNE}			{ }
+//{DEC}				{ }
+//{EXP}				{ }
+{INT}				{ return symbol(sym.CONST_ENT, Integer.parseInt(yytext())); }
+{REEL}				{ return symbol(sym.CONST_REEL, yytext()); }
+{CHAINE}			{ return symbol(sym.CONST_CHAINE, yytext()); }
+
 
 "+"             { return symbol(sym.PLUS); }
 "-"             { return symbol(sym.MOINS); }
@@ -271,7 +292,7 @@ COMMENT         { }
 ","             { return symbol(sym.VIRGULE); }
 "("             { return symbol(sym.PAR_OUVR); }
 ")"             { return symbol(sym.PAR_FERM); }
-";"             { return symbol(sym.MOINS); }
+";"            { return symbol(sym.POINT_VIRGULE); }
 ".."             { return symbol(sym.DOUBLE_POINT); }
 "/="             { return symbol(sym.DIFF); }
 "<="             { return symbol(sym.INF_EGAL); }
