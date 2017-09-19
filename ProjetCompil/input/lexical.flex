@@ -232,11 +232,11 @@ LETTRE      = [a-zA-Z]
 IDF         = {LETTRE}({LETTRE}|{CHIFFRE}|"_")*
 NUM         = {CHIFFRE}+
 SIGNE       = [+-]?
-DEC         = "{NUM}.{NUM}"
+DEC         = {NUM}"."{NUM}
 EXP         = ("E"{SIGNE}{NUM})|("e"{SIGNE}{NUM})
 
 INT         = {NUM}
-REEL        = "{DEC}|({DEC}{EXP})"
+REEL        = {DEC}|({DEC}{EXP})
 
 CHAINE_CAR  = [\040\041\043-\176]
 CHAINE      = \042 ({CHAINE_CAR}|("\042\042"))* \042
@@ -273,7 +273,7 @@ COMMENT     = "--"({CHAINE_CAR}|\t|\042)*
 //{DEC}				{ }
 //{EXP}				{ }
 {INT}				{ return symbol(sym.CONST_ENT, Integer.parseInt(yytext())); }
-{REEL}				{ return symbol(sym.CONST_REEL, yytext()); }
+{REEL}				{ return symbol(sym.CONST_REEL, Float.parseFloat(yytext())); }
 {CHAINE}			{ return symbol(sym.CONST_CHAINE, yytext()); }
 
 
