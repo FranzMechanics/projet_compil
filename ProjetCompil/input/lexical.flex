@@ -6,6 +6,7 @@ package fr.esisar.compilation.syntaxe;
 
 import java_cup.runtime.*;
 import java.util.Hashtable;
+import java.io.*;
 
 /**
  * La classe Lexical permet de realiser l'analyse lexicale.
@@ -260,7 +261,7 @@ COMMENT     = "--"({CHAINE_CAR}|\t|\042)*
 //{LETTRE}			{ }
 
 {IDF}				{   Integer x; Hashtable<String,Integer> dico = initialiserDictionnaire();
-                        if((x = dico.get(yytext())) != null){
+                        if((x = dico.get( yytext().toLowerCase() )) != null){
                             return symbol(x);
                         }
                         else{
