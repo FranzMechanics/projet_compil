@@ -1,5 +1,5 @@
 program
+    x, y : integer;
 begin
-   null;
+    x := x<y;
 end.
-
