@@ -1,0 +1,24 @@
+program
+
+a,b,c,d : boolean;
+i : float;
+flag : integer ;
+
+begin
+	a := true;
+	b := true;
+	c := false;
+	d := true;
+	flag := 1 ;
+	
+	if ( a or b ) and ( c and d ) then
+	-- Commentaire nul
+		i := 3.4;
+		flag := 0 ;
+	end;
+	
+	if ( flag === 1) tHEn 
+		i := 6 ; 
+	end; 
+	
+end.
