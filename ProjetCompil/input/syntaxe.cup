@@ -161,7 +161,7 @@ liste_idf ::= liste_idf:a1 VIRGULE idf:a2
    :}
    |  idf:a1
    {:
-      RESULT = a1;
+      RESULT = Arbre.creation2(Noeud.ListeIdent, Arbre.creation0(Noeud.Vide, parser.numLigne()),a1 , a1.getNumLigne());
    :}
    ;
 
@@ -220,7 +220,7 @@ liste_inst ::= liste_inst:a1 inst:a2 POINT_VIRGULE
    :}
    |  inst:a1 POINT_VIRGULE
    {:
-      RESULT = a1;
+      RESULT = Arbre.creation2(Noeud.ListeInst, Arbre.creation0(Noeud.Vide, parser.numLigne()), a1, a1.getNumLigne());
    :}
    ;
 
@@ -242,7 +242,7 @@ inst ::= NULL
    :}
    |  IF exp:a1 THEN liste_inst:a2 END
    {:
-      RESULT = Arbre.creation3(Noeud.Si, a1, a2, null, a2.getNumLigne());
+      RESULT = Arbre.creation3(Noeud.Si, a1, a2, Arbre.creation0(Noeud.Vide, parser.numLigne()), a2.getNumLigne());
    :}
    |  IF exp:a1 THEN liste_inst:a2 ELSE liste_inst:a3 END
    {:
@@ -278,7 +278,7 @@ liste_exp ::= liste_exp:a1 VIRGULE exp:a2
    :}
    |  exp:a1
    {:
-      RESULT = a1;
+      RESULT = Arbre.creation2(Noeud.ListeExp, Arbre.creation0(Noeud.Vide, parser.numLigne()), a1, a1.getNumLigne());
    :}
    ;
 

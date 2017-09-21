@@ -274,7 +274,7 @@ COMMENT     = "--"({CHAINE_CAR}|\t|\042)*
 //{EXP}				{ }
 {INT}				{ return symbol(sym.CONST_ENT, Integer.parseInt(yytext())); }
 {REEL}				{ return symbol(sym.CONST_REEL, Float.parseFloat(yytext())); }
-{CHAINE}			{ return symbol(sym.CONST_CHAINE, yytext()); }
+{CHAINE}			{ return symbol(sym.CONST_CHAINE, yytext().substring(1, yytext().length()-1)); }
 
 
 "+"             { return symbol(sym.PLUS); }
