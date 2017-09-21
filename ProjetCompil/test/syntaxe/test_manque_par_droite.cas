@@ -1,0 +1,14 @@
+program
+
+a,b : boolean;
+i : float;
+
+begin
+	a := true;
+	b := false;
+	
+	IF ( a or b  THEN
+		 i := 1.0 ; 
+	end;
+	
+end.
