@@ -1,0 +1,6 @@
+-- Programme vrai
+program
+    x_3 : integer;
+begin
+    x_3 := 12.0E+5;
+end.

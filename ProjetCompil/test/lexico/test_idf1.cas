@@ -1,0 +1,6 @@
+-- Programme valide
+program
+    x_e, y_e_e_e_e_e_e_e : integer;
+begin
+    null;
+end.

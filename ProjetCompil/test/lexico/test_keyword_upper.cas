@@ -1,0 +1,11 @@
+program
+    x, y : integer;
+begin
+    x := 3;
+    y := 4;
+    iF x<y then
+       x:=1;
+    eLse
+       x:=2;
+    end;
+end.

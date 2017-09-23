@@ -1,0 +1,6 @@
+-- Programme Vrai
+program
+    chaine : String;
+begin
+	chaine := "";
+end.

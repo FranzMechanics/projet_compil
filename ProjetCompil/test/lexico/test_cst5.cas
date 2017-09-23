@@ -1,0 +1,6 @@
+-- Programme faux
+program
+    x_3 : integer;
+begin
+    x_3 := 1.5E;
+end.

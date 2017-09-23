@@ -1,0 +1,8 @@
+-- Programme faux
+program
+    -- """"""""""""""""program end.
+    x_3 : integer;
+    - faux commentaire
+begin
+    x_3 := 2;
+end.

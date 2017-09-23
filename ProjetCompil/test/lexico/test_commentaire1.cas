@@ -1,0 +1,7 @@
+-- Programme vrai
+program
+    -- """"""""""""""""program end.
+    x_3 : integer;
+begin
+    x_3 := 2;
+end.
