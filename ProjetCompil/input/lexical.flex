@@ -265,7 +265,7 @@ COMMENT     = "--"({CHAINE_CAR}|\t|\042)*
                             return symbol(x);
                         }
                         else{
-                            return symbol(sym.IDF, yytext());
+                            return symbol(sym.IDF, yytext().toLowerCase());
                         }
                     }
 
