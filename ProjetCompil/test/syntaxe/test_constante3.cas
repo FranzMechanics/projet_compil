@@ -1,0 +1,6 @@
+-- Programme Vrai
+program
+T : x ;
+begin
+    null;
+end.
