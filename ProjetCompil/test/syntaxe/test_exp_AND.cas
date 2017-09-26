@@ -1,0 +1,12 @@
+-- program vrai
+-- programme de test de l'opération logique AND sur deux boolean
+
+program
+b1: boolean;
+b2: boolean;
+b3: boolean;
+begin
+    b1 := true;
+    b2 := true;
+    b3 := b1 AND b2;
+end.

@@ -1,0 +1,9 @@
+-- Programme VRAI
+-- test de l'operateur NOT
+
+program
+    x : integer;
+    y : integer;
+begin
+    y := NOT x;
+end.

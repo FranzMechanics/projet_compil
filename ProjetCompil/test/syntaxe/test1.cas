@@ -1,0 +1,6 @@
+PROGRAM
+--list_decl
+BEGIN
+    null;
+--list_inst
+END.
