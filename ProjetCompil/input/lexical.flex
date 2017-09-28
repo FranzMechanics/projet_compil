@@ -254,7 +254,7 @@ COMMENT     = "--"({CHAINE_CAR}|\t|\042)*
 // -------------------
 [ \t]+          { }
 \n              { }
-{COMMENT}         { System.out.println("## Debug ## Commentaire : "+yytext());}
+{COMMENT}         { }
 // -------------------
 
 //{CHIFFRE}				{ }

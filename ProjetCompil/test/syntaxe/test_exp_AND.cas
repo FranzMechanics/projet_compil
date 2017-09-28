@@ -1,5 +1,5 @@
 -- program vrai
--- programme de test de l'opération logique AND sur deux boolean
+-- programme de test de l'operation logique AND sur deux boolean
 
 program
 b1: boolean;
