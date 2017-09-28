@@ -1,0 +1,9 @@
+program
+    x,xXx, y : integer;
+begin
+    x+y;
+    x + y;
+    xXx := x+y;
+    x : = x + y;
+    x<y;
+end.

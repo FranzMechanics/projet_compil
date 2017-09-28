@@ -1,0 +1,6 @@
+-- Programme Faux
+program
+    chaine : String;
+begin
+    \039;
+end.

@@ -1,0 +1,6 @@
+-- Programme Vrai
+program
+T : array [1 .. 20] of integer ;
+begin
+    null;
+end.

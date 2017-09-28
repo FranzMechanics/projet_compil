@@ -1,0 +1,8 @@
+-- Programme Faux
+program
+    chaine : String;
+begin
+    -- Test Commentaires
+    -- blablabla if else +3
+	chaine := "Collier..."..en noix de coco";
+end.

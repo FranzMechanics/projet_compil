@@ -1,5 +1,9 @@
 program
+    x, y : integer;
 begin
-   null;
+    x+y;
+    x + y;
+    x := x+y;
+    x : = x + y;
+    x<y;
 end.
-

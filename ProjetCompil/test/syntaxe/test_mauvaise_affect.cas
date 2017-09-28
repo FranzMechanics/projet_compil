@@ -1,0 +1,12 @@
+program
+
+a,b : boolean;
+i : float;
+
+begin
+	a := true;
+	b := not a;
+	
+	i = 2.0 ;
+	
+end.

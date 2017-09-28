@@ -1,0 +1,8 @@
+-- Programme Faux
+program
+    x;y : integer;
+    x1 : integer;
+    x2,      x3 : integer;
+begin
+    null;
+end.

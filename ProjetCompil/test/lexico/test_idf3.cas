@@ -1,0 +1,6 @@
+-- Programme faux
+program
+    3x_e, y_e_e_e_e_e_e_e : integer;
+begin
+    null;
+end.

@@ -1,0 +1,6 @@
+-- Programme Faux
+program
+T : -1..-5 ;
+begin
+    null;
+end.

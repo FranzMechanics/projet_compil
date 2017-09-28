@@ -6,6 +6,7 @@ package fr.esisar.compilation.syntaxe;
 
 import java_cup.runtime.*;
 import java.util.Hashtable;
+import java.io.*;
 
 /**
  * La classe Lexical permet de realiser l'analyse lexicale.
@@ -27,7 +28,7 @@ import java.util.Hashtable;
 // On crée un analyseur lexical compatible avec Cup.
 %cup
 
-// Active le comptage des lignes 
+// Active le comptage des lignes
 %line
 
 // Declaration des exceptions qui peuvent etre levees par l'analyseur lexical
@@ -37,11 +38,11 @@ import java.util.Hashtable;
 
 %{
    /**
-    * Le dictionnaire associe à chaque mot réservé le code du lexème 
+    * Le dictionnaire associe à chaque mot réservé le code du lexème
     * correspondant.
     */
-   private final Hashtable<String,Integer> 
-      dictionnaire = initialiserDictionnaire(); 
+   private final Hashtable<String,Integer>
+      dictionnaire = initialiserDictionnaire();
 
    /**
     * Initialisation du dictionnaire.
@@ -93,7 +94,7 @@ import java.util.Hashtable;
     */
    static String toString(int code_lexeme) {
       switch (code_lexeme) {
-         case sym.IDF: 
+         case sym.IDF:
             return "IDF";
          case sym.CONST_ENT:
             return "CONST_ENT";
@@ -226,12 +227,22 @@ import java.util.Hashtable;
 // Définition des macros
 // -------------------------------------
 
-CHIFFRE        = [0-9]
-LETTRE         = [a-zA-Z]
+CHIFFRE     = [0-9]
+LETTRE      = [a-zA-Z]
 
-// ------------
-// A COMPLETER
-// ------------
+IDF         = {LETTRE}({LETTRE}|{CHIFFRE}|"_")*
+NUM         = {CHIFFRE}+
+SIGNE       = [+-]?
+DEC         = {NUM}"."{NUM}
+EXP         = ("E"{SIGNE}{NUM})|("e"{SIGNE}{NUM})
+
+INT         = {NUM}
+REEL        = {DEC}|({DEC}{EXP})
+
+CHAINE_CAR  = [\040\041\043-\176]
+CHAINE      = \042 ({CHAINE_CAR}|("\042\042"))* \042
+
+COMMENT     = "--"({CHAINE_CAR}|\t|\042)*
 
 %%
 
@@ -239,17 +250,56 @@ LETTRE         = [a-zA-Z]
 // Debut de la partie "regles"
 // ---------------------------
 
-[ \t]+                 { }
+// Separateurs
+// -------------------
+[ \t]+          { }
+\n              { }
+{COMMENT}         { }
+// -------------------
 
-\n                     { }
+//{CHIFFRE}				{ }
+//{LETTRE}			{ }
 
-"+"                    { return symbol(sym.PLUS); }
+{IDF}				{   Integer x; Hashtable<String,Integer> dico = initialiserDictionnaire();
+                        if((x = dico.get( yytext().toLowerCase() )) != null){
+                            return symbol(x);
+                        }
+                        else{
+                            return symbol(sym.IDF, yytext().toLowerCase());
+                        }
+                    }
 
-.                      { System.out.println("Erreur Lexicale : '" +
-                            yytext() + "' non reconnu ... ligne " + 
-                            numLigne()) ;
-                         throw new ErreurLexicale() ; }
+//{NUM}				{ }
+//{SIGNE}			{ }
+//{DEC}				{ }
+//{EXP}				{ }
+{INT}				{ return symbol(sym.CONST_ENT, Integer.parseInt(yytext())); }
+{REEL}				{ return symbol(sym.CONST_REEL, Float.parseFloat(yytext())); }
+{CHAINE}			{ return symbol(sym.CONST_CHAINE, yytext().substring(1, yytext().length()-1)); }
 
-// ------------
-// A COMPLETER
-// ------------
+
+"+"             { return symbol(sym.PLUS); }
+"-"             { return symbol(sym.MOINS); }
+"*"             { return symbol(sym.MULT); }
+"/"             { return symbol(sym.DIV_REEL); }
+"<"             { return symbol(sym.INF); }
+">"             { return symbol(sym.SUP); }
+"="             { return symbol(sym.EGAL); }
+":"             { return symbol(sym.DEUX_POINTS); }
+":="             { return symbol(sym.AFFECT); }
+"["             { return symbol(sym.CROCH_OUVR); }
+"]"             { return symbol(sym.CROCH_FERM); }
+"."             { return symbol(sym.POINT); }
+","             { return symbol(sym.VIRGULE); }
+"("             { return symbol(sym.PAR_OUVR); }
+")"             { return symbol(sym.PAR_FERM); }
+";"            { return symbol(sym.POINT_VIRGULE); }
+".."             { return symbol(sym.DOUBLE_POINT); }
+"/="             { return symbol(sym.DIFF); }
+"<="             { return symbol(sym.INF_EGAL); }
+">="             { return symbol(sym.SUP_EGAL); }
+
+.               { System.out.println("Erreur Lexicale : '" +
+                    yytext() + "' non reconnu ... ligne " +
+                    numLigne()) ;
+                 throw new ErreurLexicale() ; }
