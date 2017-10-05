@@ -93,7 +93,7 @@ public class Verif {
 	   	case Vide : break ; 
 	   	case ListeIdent :
 		   verifier_LISTE_IDENT(a.getFils1());
-		   verifier_IDENT(a.getFils2());
+		   verifier_IDENT_DECL(a.getFils2());
 		   break ; 
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_LISTE_IDENT");
@@ -101,14 +101,28 @@ public class Verif {
    }
    
    /**************************************************************************
-    * IDENT 
+    * IDENT_DECL 
     **************************************************************************/
-   private void verifier_IDENT(Arbre a) throws ErreurVerif {
+   private void verifier_IDENT_DECL(Arbre a) throws ErreurVerif {
 	   switch(a.getNoeud()){
 	   	case Ident :
 		   break ; 
 	   default :
-		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_IDENT");
+		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_IDENT_DECL");
+	   }
+   }
+   
+   
+   
+   /**************************************************************************
+    * IDENT_UTIL
+    **************************************************************************/
+   private void verifier_IDENT_UTIL(Arbre a) throws ErreurVerif {
+	   switch(a.getNoeud()){
+	   	case Ident :
+		   break ; 
+	   default :
+		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_IDENT_UTIL");
 	   }
    }
    
@@ -226,12 +240,12 @@ public class Verif {
    private void verifier_PAS(Arbre a) throws ErreurVerif {
 	   switch (a.getNoeud()){
 		case Increment : 
-			verifier_IDENT(a.getFils1());
+			verifier_IDENT_UTIL(a.getFils1());
 			verifier_EXP(a.getFils2());
 			verifier_EXP(a.getFils3());
 			break ;
 		case Decrement:
-			verifier_IDENT(a.getFils1());
+			verifier_IDENT_UTIL(a.getFils1());
 			verifier_EXP(a.getFils2());
 			verifier_EXP(a.getFils3());
 	      break ; 
