@@ -1,4 +1,4 @@
--- VRAI, profil des opérateurs / test des opérateurs dans différentes boucles if
+-- VRAI, profil des operateurs / test des operateurs dans differentes boucles if
 
 program
   x: integer

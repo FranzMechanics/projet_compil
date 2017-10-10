@@ -1,4 +1,4 @@
--- FAUX, profil des opérateurs [or] Type.Boolean, Type.Boolean --> Type.Boolean
+-- FAUX, profil des operateurs [or] Type.Boolean, Type.Boolean --> Type.Boolean
 
 program
   b: boolean;

@@ -1,4 +1,4 @@
--- FAUX, Interdiction de redéclarer un identificateur déjà déclaré
+-- FAUX, Interdiction de redeclarer un identificateur deja declare
 
 program
 x : integer;

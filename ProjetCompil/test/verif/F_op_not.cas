@@ -1,4 +1,4 @@
--- FAUX, profil des opérateurs [not] Type.Boolean --> Type.Boolean
+-- FAUX, profil des operateurs [not] Type.Boolean --> Type.Boolean
 
 program
   x: integer;

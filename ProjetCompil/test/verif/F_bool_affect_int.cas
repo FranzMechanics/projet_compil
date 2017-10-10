@@ -1,4 +1,4 @@
--- FAUX, vérification de type / affectation d'un Type.integer à un Type.Boolean
+-- FAUX, verification de type / affectation d'un Type.integer à un Type.Boolean
 
 program
 b: boolean;

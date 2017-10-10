@@ -1,4 +1,4 @@
--- FAUX, la nature des identificateurs doit toujours être vérifiée
+-- FAUX, la nature des identificateurs doit toujours être vérifee
 
 program
 i : integer;
