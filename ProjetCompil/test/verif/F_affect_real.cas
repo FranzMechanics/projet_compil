@@ -1,4 +1,4 @@
--- FAUX, Vérification de type / test sur une affectation d'un boolean sur un type Type.Real
+-- FAUX, Verification de type / test sur une affectation d'un boolean sur un type Type.Real
 
 program
     x: real;
