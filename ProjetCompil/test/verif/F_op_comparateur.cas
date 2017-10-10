@@ -1,7 +1,7 @@
--- FAUX, profil des operateurs / test des operateurs dans differentes boucles if
+-- faux, test des operateurs dans les boucles if
 
 program
-  x: integer
+  x: integer;
   b: boolean;
 begin
   b:= true;

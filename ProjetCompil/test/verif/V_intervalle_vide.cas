@@ -2,7 +2,7 @@
 
 program
 
-i: 5..2; -- Autorisé
+i: 5..2; -- Autorise
 begin
     null;
 end.

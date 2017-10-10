@@ -1,4 +1,5 @@
--- VRAI, profil des operateurs [or] Type.Boolean, Type.Boolean --> Type.Boolean
+-- VRAI
+-- Profil de l'operateur or 
 
 program
   b: boolean;

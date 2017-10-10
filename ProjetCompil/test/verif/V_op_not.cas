@@ -1,9 +1,10 @@
--- VRAI, profil des operateurs [not] Type.Boolean --> Type.Boolean
+-- VRAI
+-- Profil de l'operateur not
 
 program
 
 b, res: boolean;
 begin
   b := true;
-  res := not b;     -- res reçoit non b, le résultat de l'affectation est de type Type.Boolean
+  res := not b;     -- res recoit non b, le resultat de l'affectation est de type Type Boolean
 end.
