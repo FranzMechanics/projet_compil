@@ -1,0 +1,151 @@
+
+                  Contraintes contextuelles du langage JCas
+                  -----------------------------------------
+
+
+1) Les types du langage JCas et leur repr�sentation
+---------------------------------------------------
+
+Les types du langage JCas sont repr�sent�s par des objets de la classe Type.
+(cf. Type.java).
+
+TYPE 		-> Type.Real
+		|  Type.Boolean
+		|  Type.String
+		|  INTERVALLE
+		|  Type.Array(INTERVALLE, TYPE)
+
+INTERVALLE 	-> Type.Interval(int, int)
+
+
+Le type 'Type.Interval(i1, i2)' repr�sente l'intervalle (ferm�) des entiers
+compris entre i1 et i2.
+
+Exemples :
+   . Le type JCas '1 .. max_int' est repr�sent� par le type
+     'Type.Interval(1, valmax)'.
+   . Le type JCas 'integer' est repr�sent� par 'Type.Integer', qui a pour
+     valeur 'Type.Interval(-valmax, valmax)', o�
+     valmax = java.lang.Integer.MAX_VALUE.
+
+Notation : dans la suite, on notera 'Type.Interval' un type
+Type.Interval(i1, i2), o� i1 et i2 sont des entiers quelconques.
+
+Le type 'Type.Boolean' represente les bool�ens.
+
+Le type 'Type.Real' represente les r�els.
+
+Le type 'Type.Array(E1, E2)' repr�sente le type tableau dont les
+indices appartiennent au type E1 (qui doit �tre un type Type.Interval), et les
+�l�ments appartiennent au type E2.
+
+Le type 'Type.String' repr�sente le type des cha�nes de caract�res.
+Remarque : dans le langage JCas, les seules cha�nes de caract�res
+manipul�es sont des litt�raux (comme dans l'instruction 'write("ok")'),
+ce qui explique qu'il n'existe pas d'identificateur pour ce type en JCas.
+
+
+2) Identificateurs pr�d�finis
+-----------------------------
+
+Les identificateurs suivants sont pr�d�finis dans le langage JCas :
+
+   integer, boolean, real (identificateurs de type)
+   true, false, max_int   (identificateurs de constante)
+
+
+3) R�gles de visibilit�
+-----------------------
+
+Les identificateurs pr�d�finis sont consid�r�s comme des identificateurs
+d�j� visibles avant l'analyse du programme. Ils ne peuvent pas �tre
+red�finis. Les identificateurs d�clar�s dans le programme ne peuvent
+pas �tre red�clares. Les identificateurs qui apparaissent dans le
+programme et qui ne sont pas des identificateurs pr�d�finis doivent
+avoir �t� d�clar�s.
+
+Les identificateurs sont de diff�rentes natures :
+   - identificateur de constante (enti�re, bool�enne, r�elle ou cha�ne),
+   - identificateur de type,
+   - identificateur de variable.
+On ne peut d�clarer dans le programme que des identificateurs de variables.
+
+
+V�rifications � effectuer (avec les notations de l'arbre abstrait)
+
+   +--------------------+---------------------------------------------------+
+   |  R�gle de l'arbre  |           V�rification � effectuer                |
+   +--------------------+---------------------------------------------------+
+   | TYPE -> IDENT      | IDENT est un identificateur de type               |
+   | EXP_CONST -> IDENT | IDENT est un identificateur de constante          |
+   | EXP -> IDENT       | IDENT est un identif. de constante ou de variable |
+   | PLACE -> IDENT     | IDENT est un identificateur de variable           |
+   +--------------------+---------------------------------------------------+
+
+4) Profil des op�rateurs
+------------------------
+
+not :			Type.Boolean -> Type.Boolean      -- fait
+
+and, or :	 	Type.Boolean, Type.Boolean -> Type.Boolean  -- fait
+
+=, <, >, /=, <=, >= : 	Type.Interval, Type.Interval -> Type.Boolean
+			Type.Interval, Type.Real     -> Type.Boolean
+			Type.Real,     Type.Interval -> Type.Boolean
+			Type.Real,     Type.Real     -> Type.Boolean
+
++, - :			Type.Interval -> Type.Integer
+			Type.Real     -> Type.Real
+
++, -, * : 		Type.Interval, Type.Interval -> Type.Integer
+			Type.Interval, Type.Real     -> Type.Real
+			Type.Real,     Type.Interval -> Type.Real
+			Type.Real,     Type.Real     -> Type.Real
+
+div, mod : 		Type.Interval, Type.Interval -> Type.Integer
+
+/ : 			Type.Interval, Type.Interval -> Type.Real
+			Type.Interval, Type.Real     -> Type.Real
+			Type.Real,     Type.Interval -> Type.Real
+			Type.Real,     Type.Real     -> Type.Real
+
+[] : 			Array(Type.Interval, <type>), Type.Interval -> <type>
+
+
+
+5) V�rifications de types
+-------------------------
+
+- Intervalles : <exp_const1> .. <exp_const2>
+Il faut v�rifier que <exp_const1> et <exp_const2> sont de type Type.Interval.
+
+- Affectations : <place> := <expression>
+Le type de la place et le type de l'expression doivent etre compatibles
+pour l'affectation, c'est-�-dire :
+
+   . <place> et <expression> de type Type.Interval
+     (pas forc�ment avec les m�mes bornes) ;
+
+   . <place> et <expression> de type Type.Real ;
+
+   . <place> et <expression> de type Type.Boolean ;
+
+   . <place> de type Type.Real et <expression> de type Type.Interval ;
+
+   . <place> et <expression> de type Array, les types des indices �tant
+     identiques (plus pr�cisement, de type Type.Interval, avec les m�mes
+     bornes), et les types des �l�ments compatibles pour l'affectation.
+
+
+- Instructions if et while : la condition doit �tre de type Type.Boolean.
+
+- Instruction for : la variable de contr�le, ainsi que les deux expressions
+  doivent �tre de type Type.Interval.
+
+- Instruction read : la place doit etre de type Type.Interval ou Type.Real.
+
+- Instruction write : les expressions doivent �tre de type Type.Interval,
+  Type.Real ou Type.String.
+
+- Les places et expressions doivent �tre bien typ�es vis-�-vis des
+  d�clarations et des profils des op�rateurs.

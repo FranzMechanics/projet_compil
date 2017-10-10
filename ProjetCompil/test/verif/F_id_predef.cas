@@ -1,0 +1,7 @@
+-- FAUX, redéfinition d'un identificateur prédéfini
+
+program
+integer: boolean;
+begin
+    null;
+end.

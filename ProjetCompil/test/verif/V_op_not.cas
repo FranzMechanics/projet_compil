@@ -1,0 +1,9 @@
+-- VRAI, profil des opérateurs [not] Type.Boolean --> Type.Boolean
+
+program
+
+b, res: boolean;
+begin
+  b := true;
+  res := not b;     -- res reçoit non b, le résultat de l'affectation est de type Type.Boolean
+end.

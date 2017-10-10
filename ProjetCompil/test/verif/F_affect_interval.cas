@@ -1,0 +1,8 @@
+-- FAUX, verification de type / Test affectations de type Type.Interval
+
+program
+
+i : integer;
+begin
+    x := true;
+end.

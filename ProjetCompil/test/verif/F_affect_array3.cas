@@ -1,0 +1,8 @@
+-- FAUX, affectation entre deux tableaux n'ayant pas les mêmes bornes et pas le même type
+
+program
+    tab: array[1..10] of integer;
+    tab2: array[1..5] of boolean;
+begin
+    tab:=tab2;
+end.

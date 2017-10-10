@@ -1,0 +1,8 @@
+-- FAUX, Interdiction de redéclarer un identificateur déjà déclaré
+
+program
+x : integer;
+x : array[1..10] of integer; -- interdit
+begin
+    null;
+end.

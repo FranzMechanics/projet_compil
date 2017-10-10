@@ -1,0 +1,11 @@
+-- VRAI, profil des opérateurs [or] Type.Boolean, Type.Boolean --> Type.Boolean
+
+program
+  b: boolean;
+  b2: boolean;
+  res: boolean;
+begin
+  b:= true;
+  b2:= true;
+  res:= b or b2;
+end.

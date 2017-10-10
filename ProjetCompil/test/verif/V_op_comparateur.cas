@@ -1,0 +1,30 @@
+-- VRAI, profil des opérateurs / test des opérateurs dans différentes boucles if
+
+program
+  x: integer
+  y: real;
+begin
+  write("Ecrire votre age ");
+  read(x);
+  write("Ecrire votre age sous forme -> age.mois");
+  read(y);
+
+  if x = 20 then
+    write("Vous avez 20 ans");
+  end;
+  if y < 20 then
+    write("Vous avez moins que 20 ans");
+  end;
+  if x > 20 then
+    write ("vous avez plus que 20 ans");
+  end;
+  if x /= 20.5 then
+    write("Vous n'avez pas 20.5 ans");
+  end;
+  if x <= 20 then
+    write("Vous avez moins que 20 ans, mais vous pouvez avoir 20 ans");
+  end;
+  if y >= 20.12 then
+    write ("vous avez plus que 20 ans mais vous pouvez avoir 20 ans");
+  end;
+end.

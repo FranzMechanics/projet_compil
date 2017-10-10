@@ -1,0 +1,7 @@
+-- VRAI, Intervalle vide dans un tableau de type Type.Array
+
+program
+    tab: array[6..5] of integer ;
+begin
+    null;
+end.

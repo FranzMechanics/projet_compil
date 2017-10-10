@@ -1,0 +1,8 @@
+-- FAUX, la nature des identificateurs doit toujours être vérifiée
+
+program
+i : integer;
+j : i;  // Erreur contextuelle: identificateur de type attendu <!>
+begin
+    null;
+end.
