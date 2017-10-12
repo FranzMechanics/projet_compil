@@ -1,0 +1,10 @@
+-- FAUX
+
+program
+i : integer;
+T : array [1 .. 20] of integer ;
+begin
+    for i := 1 to true do       -- interdit
+      T[i] := 2 * i + i;
+    end ;
+end.

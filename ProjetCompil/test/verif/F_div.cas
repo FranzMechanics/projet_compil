@@ -1,0 +1,9 @@
+-- FAUX, test div
+
+program
+    x: integer;
+    y:integer;
+    res:real;
+begin
+    res:= x div y;
+end.

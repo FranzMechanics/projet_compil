@@ -1,0 +1,7 @@
+-- VRAI, test array
+
+program
+    T: array[1..10] of integer;
+begin
+    T[5] := 10;
+end.
