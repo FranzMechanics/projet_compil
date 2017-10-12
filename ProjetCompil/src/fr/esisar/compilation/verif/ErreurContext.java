@@ -13,7 +13,9 @@ package fr.esisar.compilation.verif;
 
 public enum ErreurContext {
    
-   ErreurNonRepertoriee;
+    ErreurNonRepertoriee,
+	ErreurVariableRedeclaree,
+	ErreurVariableNonDeclaree;
 
    void leverErreurContext(String s, int numLigne) throws ErreurVerif {
       System.err.println("Erreur contextuelle : ");
@@ -24,7 +26,6 @@ public enum ErreurContext {
       System.err.println(" ... ligne " + numLigne);
       throw new ErreurVerif();
    }
-
 }
 
 
