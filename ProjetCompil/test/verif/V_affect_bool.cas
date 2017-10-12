@@ -1,4 +1,4 @@
--- VRAI, vérification de type / Affectation d'un Type.Boolean à un Type.Boolean
+-- VRAI, verification de type  Affectation d'un Type.Boolean a un Type.Boolean
 
 program
 b: boolean;

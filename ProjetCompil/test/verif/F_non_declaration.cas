@@ -1,7 +1,7 @@
--- FAUX, Affectation à un identificateur non déclaré
+-- FAUX, Affectation a un identificateur non declare
 
 program
 
 begin
-    x := 5; -- interdit sans déclaration préalable
+    x := 5; -- interdit sans declaration prealable
 end.

@@ -1,4 +1,5 @@
--- VRAI, vérification de type / Affectation d'un Type.Integer à un Type.real
+-- VRAI, verification de type
+-- Affectation d'un Type.Integer a un Type.real
 
 program
     x: integer;

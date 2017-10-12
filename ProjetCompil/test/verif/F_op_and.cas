@@ -1,11 +1,11 @@
--- FAUX, profil des opérateurs [and] Type.Boolean --> Type.Boolean
+-- faux
 
 program
-  b: boolean;
-  b2: integer;
-  res: integer;
+    b:boolean;
+    b2:boolean;
+    res:integer;
 begin
-  b:= true;
-  b2:= true;
-  res:= b and b2; -- Interdit
+    b:=true;
+    b2:=true;
+    res:=b and b2; -- interdit
 end.

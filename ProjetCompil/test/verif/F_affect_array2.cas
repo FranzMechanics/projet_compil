@@ -1,4 +1,4 @@
--- FAUX, affectation de deux tableaux ayant les mêmes bornes mais pas le même type
+-- FAUX, affectation de deux tableaux ayant les memes bornes mais pas le meme type
 
 program
     tab: array[1..10] of integer;

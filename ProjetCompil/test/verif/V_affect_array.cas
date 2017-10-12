@@ -1,4 +1,4 @@
--- VRAI, affectation entre deux tableaux ayant les mêmes intervalles et le même type
+-- VRAI, affectation entre deux tableaux ayant les memes intervalles et le meme type
 
 program
     tab: array[1..10] of integer;

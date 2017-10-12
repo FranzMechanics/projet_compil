@@ -1,7 +1,9 @@
--- VRAI, profil des opérateurs / test des opérateurs dans différentes boucles if
+-- VRAI
+-- test des operateurs dans des boucles if
+
 
 program
-  x: integer
+  x: integer;
   y: real;
 begin
   write("Ecrire votre age ");

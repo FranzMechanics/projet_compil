@@ -1,7 +1,7 @@
--- FAUX, profil des opérateurs / test des opérateurs dans différentes boucles if
+-- faux, test des operateurs dans les boucles if
 
 program
-  x: integer
+  x: integer;
   b: boolean;
 begin
   b:= true;
@@ -9,7 +9,7 @@ begin
   if b = 20 then                      -- Interdit
     write("Vous avez 20 ans");
   end;
-  if b < 20 then                      -- intedit 
+  if b < 20 then                      -- intedit
     write("Vous avez moins que 20 ans");
   end;
   if b > 20 then

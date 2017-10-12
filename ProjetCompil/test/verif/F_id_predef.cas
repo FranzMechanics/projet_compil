@@ -1,4 +1,4 @@
--- FAUX, redéfinition d'un identificateur prédéfini
+-- FAUX, redefinition d'un identificateur predefini
 
 program
 integer: boolean;

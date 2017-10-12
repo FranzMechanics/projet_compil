@@ -1,5 +1,5 @@
--- FAUX, Vérification de type  / Affection entre deux tableaux n'ayant pas les
--- mêmes bornes
+-- FAUX, Verification de type  / Affection entre deux tableaux n'ayant pas les
+-- memes bornes
 
 program
     tab: array[1..10] of integer;

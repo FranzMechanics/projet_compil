@@ -2,8 +2,8 @@
 
 program
 
-i: 1..10;
+i: integer;
 
 begin
-    i := 5..10;
+    i := 5;
 end.
