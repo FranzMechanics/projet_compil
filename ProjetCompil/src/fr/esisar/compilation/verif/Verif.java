@@ -101,9 +101,25 @@ public class Verif {
    private void verifier_DECL(Arbre a) throws ErreurVerif {
 	   switch(a.getNoeud()){
 	   	case Decl :
-		   verifier_LISTE_IDENT(a.getFils1());
-		   verifier_TYPE(a.getFils2());
-		   break ;
+	   		verifier_TYPE(a.getFils2());
+	   		Type t = null;
+	   		if(a.getFils2().getChaine().contains("integer")){
+	   			t = Type.Integer;
+	   		}
+	   		else if(a.getFils2().getChaine().contains("string")){
+	   			t = Type.String;
+	   		}
+	   		else if(a.getFils2().getChaine().contains("boolean")){
+	   			t = Type.Boolean;
+	   		}
+	   		else if(a.getFils2().getChaine().contains("real")){
+	   			t = Type.Real;
+	   		}
+	   		else{
+	   			throw new ErreurInterneVerif("Type inconnu dans verifier_DECL");
+	   		}
+	   		verifier_LISTE_IDENT(a.getFils1(), t);
+	   		break ;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_DECL");
 	   }
@@ -113,12 +129,12 @@ public class Verif {
    /**************************************************************************
     * LISTE_IDENT
     **************************************************************************/
-   private void verifier_LISTE_IDENT(Arbre a) throws ErreurVerif {
+   private void verifier_LISTE_IDENT(Arbre a, Type t) throws ErreurVerif {
 	   switch(a.getNoeud()){
 	   	case Vide : break ;
 	   	case ListeIdent :
-		   verifier_LISTE_IDENT(a.getFils1());
-		   verifier_IDENT_DECL(a.getFils2());
+		   verifier_LISTE_IDENT(a.getFils1(), t);
+		   verifier_IDENT_DECL(a.getFils2(), t);
 		   break ;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_LISTE_IDENT");
@@ -128,10 +144,18 @@ public class Verif {
    /**************************************************************************
     * IDENT_DECL
     **************************************************************************/
-   private void verifier_IDENT_DECL(Arbre a) throws ErreurVerif {
+   private void verifier_IDENT_DECL(Arbre a, Type t) throws ErreurVerif {
 	   switch(a.getNoeud()){
 	   	case Ident :
-		   break ;
+		   if(env.chercher(a.getChaine()) == null){
+			   Defn defn = Defn.creationVar(t);
+			   a.setDecor(new Decor(defn));
+			   env.enrichir(a.getChaine(), defn);
+		   }
+		   else{
+			   throw new ErreurInterneVerif("Variable redéclarée dans verifier_IDENT_DECL");
+		   }
+		   break;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_IDENT_DECL");
 	   }
@@ -231,6 +255,30 @@ public class Verif {
 		case Affect:
 			verifier_PLACE(a.getFils1());
 			verifier_EXP(a.getFils2());
+			switch(a.getFils2().getNoeud()){
+			case Entier:
+				if(!ReglesTypage.affectCompatible(env.chercher(a.getFils1().getChaine()).getType(), Type.Integer).getOk()){
+					throw new ErreurReglesTypage();
+				}
+				break;
+			case Reel :
+				if(!ReglesTypage.affectCompatible(env.chercher(a.getFils1().getChaine()).getType(), Type.Real).getOk()){
+					throw new ErreurReglesTypage();
+				}
+				break;
+			case Chaine:
+				if(!ReglesTypage.affectCompatible(env.chercher(a.getFils1().getChaine()).getType(), Type.String).getOk()){
+					throw new ErreurReglesTypage();
+				}
+				break;
+			default:
+				if((a.getFils2().getChaine().contentEquals("false"))||(a.getFils2().getChaine().contentEquals("true"))){
+					if(!ReglesTypage.affectCompatible(env.chercher(a.getFils1().getChaine()).getType(), Type.Boolean).getOk()){
+						throw new ErreurReglesTypage();
+					}
+				}
+				break;
+			}
 			break ;
 		case Pour :
 			verifier_PAS(a.getFils1());
@@ -400,7 +448,7 @@ public class Verif {
 			break ;
 		default :
 			throw new ErreurInterneVerif("Arbre incorrect dans verifier_EXP");
-	}
+	   }
    }
 
 
