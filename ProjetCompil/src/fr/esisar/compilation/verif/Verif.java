@@ -160,7 +160,7 @@ public class Verif {
 	   	case Ident :
 	   		Defn d;
 	   		if((d = env.chercher(a.getChaine())) != null){
-	   			a.setDecor(new Decor(d));
+	   			a.setDecor(new Decor(d, d.getType()));
 		    }
 		    else{
 			   ErreurContext.ErreurVariableNonDeclaree.leverErreurContext("Variable non déclarée", a.getNumLigne());
@@ -260,29 +260,11 @@ public class Verif {
 		case Affect:
 			verifier_PLACE(a.getFils1());
 			verifier_EXP(a.getFils2());
-			switch(a.getFils2().getNoeud()){
-			case Entier:
-				if(!ReglesTypage.affectCompatible(env.chercher(a.getFils1().getChaine()).getType(), Type.Integer).getOk()){
-					throw new ErreurReglesTypage();
-				}
-				break;
-			case Reel :
-				if(!ReglesTypage.affectCompatible(env.chercher(a.getFils1().getChaine()).getType(), Type.Real).getOk()){
-					throw new ErreurReglesTypage();
-				}
-				break;
-			case Chaine:
-				if(!ReglesTypage.affectCompatible(env.chercher(a.getFils1().getChaine()).getType(), Type.String).getOk()){
-					throw new ErreurReglesTypage();
-				}
-				break;
-			default:
-				if((a.getFils2().getChaine().contentEquals("false"))||(a.getFils2().getChaine().contentEquals("true"))){
-					if(!ReglesTypage.affectCompatible(env.chercher(a.getFils1().getChaine()).getType(), Type.Boolean).getOk()){
-						throw new ErreurReglesTypage();
-					}
-				}
-				break;
+			System.out.println("Fils1 "+a.getFils1().getDecor());
+			System.out.println("Fils2 "+a.getFils2().getDecor());
+			ResultatAffectCompatible reg_aff = ReglesTypage.affectCompatible(a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
+			if(reg_aff.getOk() == false){
+				throw new ErreurReglesTypage();
 			}
 			break ;
 		case Pour :
@@ -371,62 +353,149 @@ public class Verif {
     * EXP
     **************************************************************************/
    private void verifier_EXP(Arbre a) throws ErreurVerif {
+	   ResultatBinaireCompatible reg_bin;
+	   ResultatUnaireCompatible reg_un;
+	   Type type;
 	   switch (a.getNoeud()){
 		case Et :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Ou:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Egal :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case InfEgal:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case SupEgal :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case NonEgal:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Inf :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Sup:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Plus :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Moins:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Mult :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case DivReel:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Reste :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Quotient:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			if(reg_bin.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_bin.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Index :
 			verifier_PLACE(a.getFils1());
@@ -434,12 +503,30 @@ public class Verif {
 			break ;
 		case PlusUnaire:
 			verifier_EXP(a.getFils1());
+			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType());
+			if(reg_un.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_un.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case MoinsUnaire :
 			verifier_EXP(a.getFils1());
+			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType());
+			if(reg_un.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_un.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Non:
 			verifier_EXP(a.getFils1());
+			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType());
+			if(reg_un.getOk() == false){
+				throw new ErreurReglesTypage();
+			}
+			type = reg_un.getTypeRes();
+			a.setDecor(new Decor(type));
 			break ;
 		case Conversion :
 			verifier_EXP(a.getFils1());
@@ -448,8 +535,10 @@ public class Verif {
 			a.setDecor(new Decor(Defn.creationConstInteger(a.getEntier())));
 			break ;
 		case Reel :
+			a.setDecor(new Decor(Type.Real));
 			break ;
 		case Chaine:
+			a.setDecor(new Decor(Type.String));
 			break ;
 		case Ident :
 			verifier_IDENT_UTIL(a);

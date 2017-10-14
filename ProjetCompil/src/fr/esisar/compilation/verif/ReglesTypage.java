@@ -150,7 +150,7 @@ public class ReglesTypage {
 				   res.setTypeRes(Type.Real);
 			}
 			else{
-					res.setOk(false);
+				   res.setOk(false);
 				   res.setConv1(false);
 				   res.setConv2(false);
 			}
