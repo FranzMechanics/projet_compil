@@ -12,7 +12,7 @@ Documentation sur les tests:
     Les différents types de tests:
 
     --> Test unitaires (test d'une méthode, d'une classe)
-    --> test d'intégration (teste l'intégration de plusieurs méthodes ou plusieurs classes)
+    --> test d'intégration (test l'intégration de plusieurs méthodes ou plusieurs classes)
     --> Tests systèmes: test du compilateur dans les conditions normales d'utilisation
 
 
@@ -88,7 +88,7 @@ Documentation sur les tests:
 
                     - place et expression de type Type.Real                                     -- fait
                     - place et expression de type Type.Boolean
-                    - place de type Type.Real et expression de type Type.Interval               -- fait 
+                    - place de type Type.Real et expression de type Type.Interval               -- fait
                     - place et expression de type Type.Array. Les types des indices
                     étant identiques (de type Type.Interval, avec les mêmes bornes),
                     et les types des éléments compatibles pour l'affectation
