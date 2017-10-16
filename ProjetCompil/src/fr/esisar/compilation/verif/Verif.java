@@ -142,7 +142,19 @@ public class Verif {
 			   env.enrichir(a.getChaine(), defn);
 		   }
 		   else{
-			   ErreurContext.ErreurVariableRedeclaree.leverErreurContext("Variable redéclarée", a.getNumLigne());
+			   String[] predef = new String[6];
+			   predef[0] = "integer";
+			   predef[1] = "boolean";
+			   predef[2] = "real";
+			   predef[3] = "true";
+			   predef[4] = "false";
+			   predef[5] = "max_int";
+			   for(String i: predef){
+				   if (i.equals(a.getChaine())){
+					   ErreurContext.ErreurIdentNomReserve.leverErreurContext(a.getChaine(), a.getNumLigne());
+				   }
+			   }
+			   ErreurContext.ErreurVariableRedeclaree.leverErreurContext("Variable "+a.getChaine()+" déjà déclarée", a.getNumLigne());
 		   }
 		   break;
 	   default :
@@ -163,7 +175,7 @@ public class Verif {
 	   			a.setDecor(new Decor(d, d.getType()));
 		    }
 		    else{
-			   ErreurContext.ErreurVariableNonDeclaree.leverErreurContext("Variable non déclarée", a.getNumLigne());
+			   ErreurContext.ErreurVariableNonDeclaree.leverErreurContext("Variable "+a.getChaine()+" non déclarée", a.getNumLigne());
 		    }
 	   		break;
 	   default :
@@ -189,10 +201,12 @@ public class Verif {
 	   	case Intervalle :
 		    verifier_EXP_CONST(a.getFils1());
 		    verifier_EXP_CONST(a.getFils2());
+		    a.setDecor(new Decor(Type.creationInterval(a.getFils1().getEntier(), a.getFils2().getEntier())));
 		    break ;
 	   	case Tableau :
 	   		verifier_TYPE_INTERVALLE(a.getFils1());
 	   		verifier_TYPE(a.getFils2());
+	   		a.setDecor(new Decor(Type.creationArray(a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType())));
 	   		break ;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_TYPE");
@@ -208,6 +222,7 @@ public class Verif {
 	   	case Intervalle :
 		   verifier_EXP_CONST(a.getFils1());
 		   verifier_EXP_CONST(a.getFils2());
+		   a.setDecor(new Decor(Type.creationInterval(a.getFils1().getEntier(), a.getFils2().getEntier())));
 		   break ;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_TYPE_INTERVALLE");
@@ -219,16 +234,32 @@ public class Verif {
     * EXP_CONST
     **************************************************************************/
    private void verifier_EXP_CONST(Arbre a) throws ErreurVerif {
+	   ResultatUnaireCompatible reg_un;
+	   Type type;
 	   switch(a.getNoeud()){
 	   	case Ident :
+	   		verifier_IDENT_UTIL(a);
 	   		break ;
 	   	case Entier :
+	   		a.setDecor(new Decor(Defn.creationConstInteger(a.getEntier()), Type.Integer));
 		   break ;
 	   	case PlusUnaire :
 	   		verifier_EXP_CONST(a.getFils1());
+			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
+			if(reg_un.getOk() == false){
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
+			}
+			type = reg_un.getTypeRes();
+			a.setDecor(new Decor(type));
 	   		break ;
 	   	case MoinsUnaire :
 	   		verifier_EXP_CONST(a.getFils1());
+	   		reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
+			if(reg_un.getOk() == false){
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
+			}
+			type = reg_un.getTypeRes();
+			a.setDecor(new Decor(type));
 	   		break;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_EXP_CONST");
@@ -260,11 +291,9 @@ public class Verif {
 		case Affect:
 			verifier_PLACE(a.getFils1());
 			verifier_EXP(a.getFils2());
-			System.out.println("Fils1 "+a.getFils1().getDecor());
-			System.out.println("Fils2 "+a.getFils2().getDecor());
 			ResultatAffectCompatible reg_aff = ReglesTypage.affectCompatible(a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_aff.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_aff.getConv2() == true){
 				Arbre tmp;
@@ -331,6 +360,7 @@ public class Verif {
 		case Index:
 			verifier_PLACE(a.getFils1());
 			verifier_EXP(a.getFils2());
+			a.setDecor(new Decor(env.chercher(a.getFils1().getChaine()).getType().getElement()));
 			break ;
 		default :
 			throw new ErreurInterneVerif("Arbre incorrect dans verifier_PLACE");
@@ -368,7 +398,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -378,7 +408,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -388,7 +418,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -410,7 +440,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -432,7 +462,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -454,7 +484,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -476,7 +506,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -498,7 +528,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -520,7 +550,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -542,7 +572,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -564,7 +594,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -586,7 +616,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			else if(reg_bin.getConv1() == true){
 				Arbre tmp;
@@ -608,7 +638,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -618,7 +648,7 @@ public class Verif {
 			verifier_EXP(a.getFils2());
 			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -626,12 +656,13 @@ public class Verif {
 		case Index :
 			verifier_PLACE(a.getFils1());
 			verifier_EXP(a.getFils2());
+			a.setDecor(new Decor(env.chercher(a.getFils1().getChaine()).getType().getElement()));
 			break ;
 		case PlusUnaire:
 			verifier_EXP(a.getFils1());
 			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
 			if(reg_un.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
 			}
 			type = reg_un.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -640,7 +671,7 @@ public class Verif {
 			verifier_EXP(a.getFils1());
 			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
 			if(reg_un.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
 			}
 			type = reg_un.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -649,7 +680,7 @@ public class Verif {
 			verifier_EXP(a.getFils1());
 			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
 			if(reg_un.getOk() == false){
-				throw new ErreurReglesTypage();
+				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
 			}
 			type = reg_un.getTypeRes();
 			a.setDecor(new Decor(type));

@@ -36,7 +36,7 @@ public class ReglesTypage {
 	   }
 	   else if((t1.getNature() == NatureType.Array)&&(t2.getNature() == NatureType.Array)){
 		   if(t1.getIndice().getNature()==NatureType.Interval && t2.getIndice().getNature()==NatureType.Interval){
-			   if(t1.getBorneInf()==t2.getBorneInf() && t1.getBorneSup()==t2.getBorneSup()){
+			   if(t1.getIndice().getBorneInf()==t2.getIndice().getBorneInf() && t1.getIndice().getBorneSup()==t2.getIndice().getBorneSup()){
 				   if(affectCompatible(t1.getElement(),t2.getElement()).getOk()){
 					   res.setOk(true);
 					   res.setConv2(affectCompatible(t1.getElement(),t2.getElement()).getConv2());
