@@ -250,7 +250,7 @@ public class Verif {
 				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
 			}
 			type = reg_un.getTypeRes();
-			a.setDecor(new Decor(type));
+			a.setDecor(new Decor(Defn.creationConstInteger(+a.getEntier()), Type.Integer));
 	   		break ;
 	   	case MoinsUnaire :
 	   		verifier_EXP_CONST(a.getFils1());
@@ -259,7 +259,7 @@ public class Verif {
 				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
 			}
 			type = reg_un.getTypeRes();
-			a.setDecor(new Decor(type));
+			a.setDecor(new Decor(Defn.creationConstInteger(-a.getEntier()), Type.Integer));
 	   		break;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_EXP_CONST");
