@@ -1,4 +1,4 @@
--- VRAI, while avec décrément
+-- VRAI, while avec decrement
 
 program
     i:integer

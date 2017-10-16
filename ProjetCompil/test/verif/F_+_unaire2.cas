@@ -1,0 +1,7 @@
+-- FAUX, + unaire
+
+program
+    b:boolean;
+begin
+    b:=+true;
+end.
