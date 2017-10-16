@@ -201,7 +201,7 @@ public class Verif {
 	   	case Intervalle :
 		    verifier_EXP_CONST(a.getFils1());
 		    verifier_EXP_CONST(a.getFils2());
-		    a.setDecor(new Decor(Type.creationInterval(a.getFils1().getEntier(), a.getFils2().getEntier())));
+			a.setDecor(new Decor(Type.creationInterval(a.getFils1().getDecor().getDefn().getValeurInteger(), a.getFils2().getDecor().getDefn().getValeurInteger())));
 		    break ;
 	   	case Tableau :
 	   		verifier_TYPE_INTERVALLE(a.getFils1());
@@ -222,7 +222,7 @@ public class Verif {
 	   	case Intervalle :
 		   verifier_EXP_CONST(a.getFils1());
 		   verifier_EXP_CONST(a.getFils2());
-		   a.setDecor(new Decor(Type.creationInterval(a.getFils1().getEntier(), a.getFils2().getEntier())));
+		   a.setDecor(new Decor(Type.creationInterval(a.getFils1().getDecor().getDefn().getValeurInteger(), a.getFils2().getDecor().getDefn().getValeurInteger())));
 		   break ;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_TYPE_INTERVALLE");
@@ -235,7 +235,6 @@ public class Verif {
     **************************************************************************/
    private void verifier_EXP_CONST(Arbre a) throws ErreurVerif {
 	   ResultatUnaireCompatible reg_un;
-	   Type type;
 	   switch(a.getNoeud()){
 	   	case Ident :
 	   		verifier_IDENT_UTIL(a);
@@ -249,8 +248,7 @@ public class Verif {
 			if(reg_un.getOk() == false){
 				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
 			}
-			type = reg_un.getTypeRes();
-			a.setDecor(new Decor(Defn.creationConstInteger(+a.getEntier()), Type.Integer));
+			a.setDecor(new Decor(Defn.creationConstInteger(+a.getFils1().getEntier()), Type.Integer));
 	   		break ;
 	   	case MoinsUnaire :
 	   		verifier_EXP_CONST(a.getFils1());
@@ -258,8 +256,7 @@ public class Verif {
 			if(reg_un.getOk() == false){
 				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
 			}
-			type = reg_un.getTypeRes();
-			a.setDecor(new Decor(Defn.creationConstInteger(-a.getEntier()), Type.Integer));
+			a.setDecor(new Decor(Defn.creationConstInteger(-a.getFils1().getEntier()), Type.Integer));
 	   		break;
 	   default :
 		   throw new ErreurInterneVerif("Arbre incorrect dans verifier_EXP_CONST");
