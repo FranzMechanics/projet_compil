@@ -21,7 +21,7 @@ public enum ErreurContext {
       System.err.println("Erreur contextuelle : ");
       switch (this) {
          default:
-            System.err.print("non repertoriee");
+            System.err.print(s);
       }
       System.err.println(" ... ligne " + numLigne);
       throw new ErreurVerif();

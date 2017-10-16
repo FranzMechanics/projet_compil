@@ -266,6 +266,12 @@ public class Verif {
 			if(reg_aff.getOk() == false){
 				throw new ErreurReglesTypage();
 			}
+			else if(reg_aff.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
+			}
 			break ;
 		case Pour :
 			verifier_PAS(a.getFils1());
@@ -360,7 +366,7 @@ public class Verif {
 		case Et :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
 			}
@@ -370,7 +376,7 @@ public class Verif {
 		case Ou:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
 			}
@@ -380,9 +386,21 @@ public class Verif {
 		case Egal :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -390,9 +408,21 @@ public class Verif {
 		case InfEgal:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -400,9 +430,21 @@ public class Verif {
 		case SupEgal :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -410,9 +452,21 @@ public class Verif {
 		case NonEgal:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -420,9 +474,21 @@ public class Verif {
 		case Inf :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -430,9 +496,21 @@ public class Verif {
 		case Sup:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -440,9 +518,21 @@ public class Verif {
 		case Plus :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -450,9 +540,21 @@ public class Verif {
 		case Moins:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -460,9 +562,21 @@ public class Verif {
 		case Mult :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -470,9 +584,21 @@ public class Verif {
 		case DivReel:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
+			}
+			else if(reg_bin.getConv1() == true){
+				Arbre tmp;
+				tmp = a.getFils1();
+				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils1().setDecor(new Decor(Type.Real));
+			}
+			else if(reg_bin.getConv2() == true){
+				Arbre tmp;
+				tmp = a.getFils2();
+				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
+				a.getFils2().setDecor(new Decor(Type.Real));
 			}
 			type = reg_bin.getTypeRes();
 			a.setDecor(new Decor(type));
@@ -480,7 +606,7 @@ public class Verif {
 		case Reste :
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
 			}
@@ -490,7 +616,7 @@ public class Verif {
 		case Quotient:
 			verifier_EXP(a.getFils1());
 			verifier_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType(), a.getFils2().getDecor().getDefn().getType());
+			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
 			if(reg_bin.getOk() == false){
 				throw new ErreurReglesTypage();
 			}
@@ -503,7 +629,7 @@ public class Verif {
 			break ;
 		case PlusUnaire:
 			verifier_EXP(a.getFils1());
-			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType());
+			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
 			if(reg_un.getOk() == false){
 				throw new ErreurReglesTypage();
 			}
@@ -512,7 +638,7 @@ public class Verif {
 			break ;
 		case MoinsUnaire :
 			verifier_EXP(a.getFils1());
-			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType());
+			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
 			if(reg_un.getOk() == false){
 				throw new ErreurReglesTypage();
 			}
@@ -521,7 +647,7 @@ public class Verif {
 			break ;
 		case Non:
 			verifier_EXP(a.getFils1());
-			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getDefn().getType());
+			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
 			if(reg_un.getOk() == false){
 				throw new ErreurReglesTypage();
 			}
@@ -532,7 +658,7 @@ public class Verif {
 			verifier_EXP(a.getFils1());
 			break ;
 		case Entier:			
-			a.setDecor(new Decor(Defn.creationConstInteger(a.getEntier())));
+			a.setDecor(new Decor(Defn.creationConstInteger(a.getEntier()), Type.Integer));
 			break ;
 		case Reel :
 			a.setDecor(new Decor(Type.Real));
