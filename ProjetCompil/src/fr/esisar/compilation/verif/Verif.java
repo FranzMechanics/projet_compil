@@ -195,7 +195,7 @@ public class Verif {
 		   		a.setDecor(dec);
 	   		}
 	   		else{
-	   			throw new ErreurType(a.getChaine()+" : Type non défini");
+	   			ErreurContext.ErreurTypeIndefini.leverErreurContext(a.getChaine(), a.getNumLigne());
 	   		}
 	   		break ;
 	   	case Intervalle :
