@@ -1,0 +1,7 @@
+--VRAI, sup conv 1 
+
+program
+  b : boolean ;
+begin
+  b:= 2 > 3.1 ;
+end.

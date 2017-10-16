@@ -1,0 +1,7 @@
+--VRAI, inf conv2
+
+program
+  b : boolean ;
+begin
+  b:= 3.1 < 2 ;
+end.
