@@ -6,6 +6,6 @@ program
     res:real;
 begin
     x:=5;
-    y:=10;
+    y:=10.2;
     res:=x*y;
 end.

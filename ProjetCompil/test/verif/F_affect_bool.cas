@@ -1,0 +1,9 @@
+-- FAUX, affectation boolean
+
+program
+    b:boolean;
+    b1:boolean;
+begin
+    b1:=true;
+    b:= true = 2;
+end.

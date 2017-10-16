@@ -1,0 +1,7 @@
+-- VRAI, + unaire
+
+program
+    T: 0..+5;
+begin
+    null;
+end.
