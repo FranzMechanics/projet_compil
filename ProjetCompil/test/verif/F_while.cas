@@ -1,0 +1,9 @@
+-- FAUX, while
+
+program
+    x: integer;
+begin
+    while (x) do
+        write ("coucou");
+    end;
+end.

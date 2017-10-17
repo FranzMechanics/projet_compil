@@ -1,0 +1,9 @@
+-- FAUX, if
+
+program
+    x:integer;
+begin
+    if x then 
+        write("erreur ");
+    end;
+end.
