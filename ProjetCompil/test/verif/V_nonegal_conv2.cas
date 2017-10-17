@@ -1,0 +1,7 @@
+--VRAI, nonegal conv 2
+
+program
+  b : boolean ;
+begin
+  b:= 3.1 /= 2 ;
+end.

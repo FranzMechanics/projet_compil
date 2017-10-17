@@ -1,7 +1,83 @@
 \part*{CS444 - Projet Compilation \\ Documentation}
 
 
-\section*{Base de test}
+\section*{Les messages d'erreurs}
+
+    Pour la gestion des erreurs nous avons à disposition ErreurContext.java,
+     ErreurInterneVerif.java et ErreurReglesTypage.java.
+
+     \vspace{3mm}
+
+     Pour la suite nous avons préferé gerer les erreurs avec la classe enum ErreurContext et non par la classe ErreurReglesTypage.
+En effet, cela nous permet de différencier les erreurs levées et d'afficher des messages spécifiques.
+D'autre part, si la passe 1 a été correctement faite, il ne devrait pas avoir d'ErreurInterneVerif.
+
+    \vspace{3mm}
+
+    Voici les erreurs contextuelles ainsi que leur description et le message affiché :
+
+    \vspace{3mm}
+
+    - ErreurVariableRedeclaree:
+
+    Description: Lors de la déclaration des variables, si une variable a le meme nom qu'une variable déjà déclarée
+
+    Message: Erreur contextuelle : Variable non déclarée
+
+    Variable [nom\_variable] non déclarée ... ligne [num\_ligne]
+
+    \vspace{3mm}
+
+    - ErreurVariableNonDeclaree
+
+    Description: Si on utilise une variable qui n'a pas été déclarée au préalable
+
+    Message: Erreur contextuelle : Variable non déclarée
+
+    Variable [nom\_variable] non déclarée ... ligne [num\_ligne]
+
+    \vspace{3mm}
+
+    - ErreurTypageNonCompatible
+
+    Description: Lors d'une affectation, une operation binaire ou une operation unaire et que le type attendu n'est pas le bon.
+
+    Message: Erreur contextuelle : Opération non compatible :
+
+    Opération Affect : Types [type1] et [type2] incompatibles ... ligne [num\_ligne]
+
+    \vspace{3mm}
+
+    - ErreurTypeIndefini
+
+    Description: Lors d'une déclaration d'une variable, on lui donne un type indefini
+
+    Message: Erreur contextuelle : Typeindefini
+
+    Le type[type\_indefini] est indefini dans l'environnement ... ligne [num\_ligne]
+
+    \vspace{3mm}
+
+    - ErreurIdentNomReserve
+
+    Description: Lors d'une utilisation d'un mot reservé
+
+    Message: Erreur contextuelle : Identificateur déclaré avec un nom réservé
+
+    [mot\_reservé] est un nom réservé ... ligne [num\_ligne]
+
+    \vspace{3mm}
+
+    - ErreurNonRepertoriee
+
+    Description: Aucune des erreurs précédentes, normalement on utilise jamais cette erreur.
+
+    Message: Erreur contextuelle : Erreur non repertoriee
+
+    \vspace{3mm}
+
+
+\section*{La méthodologie de test}
 
     L'objectif principale de cette base de test est de tester notre compilateur
     sur des régles sémantiques décrites dans le fichier context.txt.
@@ -47,5 +123,3 @@
     tests invalides afin de couvrir le plus de cas possibles.
 
     \vspace{3mm}
-
-    

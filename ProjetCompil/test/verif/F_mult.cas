@@ -1,0 +1,7 @@
+--FAUX, mult
+
+program
+  b : real ;
+begin
+  b:= 3 * true ;
+end.

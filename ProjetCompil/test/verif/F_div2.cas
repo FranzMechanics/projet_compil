@@ -1,0 +1,7 @@
+-- FAUX, test div
+
+program
+    x:integer;
+begin
+    x:= 3 div true;
+end.

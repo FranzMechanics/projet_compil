@@ -1,0 +1,8 @@
+--VRAI, mult conv2
+
+
+program
+  b : real;
+begin
+  b:= 3.1 * 2 ;
+end.
