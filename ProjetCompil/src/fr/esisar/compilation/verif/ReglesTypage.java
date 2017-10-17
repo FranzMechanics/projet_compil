@@ -200,7 +200,7 @@ public class ReglesTypage {
 				   res.setConv2(false);
 			}
 		 break;
-	   	case Tableau:
+	   	case Index:
 			if(t1.getNature()==NatureType.Array && t1.getIndice().getNature()==NatureType.Interval && t2.getNature()==NatureType.Interval){
 				   res.setOk(true);
 				   res.setConv1(false);

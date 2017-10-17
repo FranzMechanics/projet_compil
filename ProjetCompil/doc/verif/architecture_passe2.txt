@@ -1,0 +1,51 @@
+Architecture passe 2
+
+ -- Décoration de l'arbre
+
+Nous avons décoré l'arbre avec la méthode setDecor().
+Decor est une classe qui contient des informations sur les noeuds de l'arbre.
+Un Decor contient 3 attributs : 
+	- Defn qui permet d'ajouter des informations sur les identificateurs
+	- Type qui spécifie le type d'un noeud
+	- Infocode qui servira pour la passe 3
+
+Ainsi on rajoute les informations en fonction du noeud qu'on regarde.
+	ex: pour une constante entière, on rajoute à l'arbre un Decor contenant un DefnConstInteger qui contient la valeur de la constante
+	    pour un intervalle on ajoute à l'arbre un Decor de Type.Interval qui contient les bornes de l'intervalle
+Et ainsi de suite...
+
+Dans le cas des identificateurs on définit un Defn qui est une structure spécifique. Elle contient :
+	- sa nature : ex : NatureDefn.Var pour une variable et NatureDefn.Type pour un type
+	- son type
+	- son genre si c'est une variable prédéfinie dans l'environnement
+
+On utilise l'environnement pour sauvegarder les informations contextuelles sur les variables et les types.
+Dans un premier temps on l'initialise avec les types prédéfinis (integer, boolean, real) ainsi que les mots réservés (integer, boolean, real).
+Ensuite on liera chaque nouveau Defn correspondant à une variable à la chaîne de caractères qui représente son nom.
+Lorsqu'on rencontrera des variables on cherchera d'abord si son nom est déjà lié à un Defn. Si c'est le cas (la variable a déjà été déclarée) on récupère ce Defn ainsi que les informations qu'il contient à propos de la variable en question. Sinon on créé un nouveau Defn et on le lie au nom de la variable rencontrée.
+Ces deux opérations sont mutuellement exclusives en fonction de l'endroit de l'arbre où on se trouve :
+	- dans IDENT_DECL on retourne une erreur si la variable est déjà présente dans l'environnement : on ne peut pas redéclarer une variable existante
+	- dans IDENT_UTIL on retourne une erreur si la variable n'est pas présente dans l'environnement : on ne peut pas utiliser une variable non déclarée
+
+Ainsi on peut modéliser le contexte de façon à respecter les conditions du langage.
+
+ -- ReglesTypage
+
+Une fois qu'on a décoré l'arbre de façon exhaustive, on va vérifier que les opérations qu'on effectue sont valides au sens du typage.
+On utilise 3 fonctions pour vérifier cela :
+	- affectCompatible qui vérifie que l'affectation d'une grandeur à une variable est valide
+	- unaireCompatible qui vérifie que les opérations unaires (PlusUnaire, MoinsUnaire, Non) sont valides
+	- binaireCompatible qui vérifie que les opérations binaires (Plus, Mult, Et, Ou, ...) sont valides
+
+Ces fonctions retournent 3 structures : ResultatAffectCompatible, ResultatUnaireCompatible et ResultatBinaireCompatible.
+Ces trois structures ont des arrtibuts en commun : 
+	- Ok : permet de savoir si l'opération testée est valide ou non
+	- Conv1 : vrai si l'opération requiert le rajout d'un noeud Conversion sur son fils1
+	- Conv2 : vrai si l'opération requiert le rajout d'un noeud Conversion sur son fils2
+
+On va tester ensuite ces champs pour déterminer les opérations à effectuer. Si le champ Ok est false, on retourne une erreur. Si les champs Conv1 ou Conv2 sont vrais on rajoute un noeud Conversion à l'endroit correspondant.
+
+ -- Noeud Conversion
+
+Pour rajouter le noeud Conversion, on détache dans un premier temps le fils correspondant du noeud courant de l'arbre. Ensuite on créé le noeud Conversion avec Arbre.creation1 et on lui attache le fils qu'on a détaché au préalable.
+Ainsi on a inséré un noeud Conversion entre le noeud courant et le fils qui le requiert. 
