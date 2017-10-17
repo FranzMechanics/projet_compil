@@ -1,0 +1,7 @@
+-- FAUX, test index
+
+program
+    T:array[1..10] of integer;
+begin
+    T[1]:=true;
+end.
