@@ -47,16 +47,9 @@ class Generation {
    
    
    
-   
-   
-   
-   static Inst generer_LIGNE(){
-	   return Inst.creation0(Operation.WNL);
-   }
-   
-   
-   
-   
+   static void generer_LIGNE(){
+	   Prog.ajouter(Inst.creation0(Operation.WNL));
+   }  
    
    
    static void generer_ECRITURE(Arbre a) {
@@ -84,12 +77,167 @@ class Generation {
 		   break;
 		   
 	   }
-	
-	   
-	  
    }
    
+   static void generer_AFFECT(){
+	   
+   }
    
+   static void generer_CHAINE(){
+	   
+   }
+   
+   static void generer_CONVERSION(){
+	   
+   }
+   
+   static void generer_DECL(){
+	   
+   }
+   
+   static void generer_DECREMENT(){
+	   
+   }
+   
+   static void generer_DIV_REEL(){
+	   
+   }
+   
+   static void generer_EGAL(){
+	   
+   }
+   
+   static void generer_ENTIER(){
+	   
+   }
+   
+   static void generer_ET(){
+	   
+   }
+   
+   static void generer_IDENT(){
+	   
+   }
+   
+   static void generer_INCREMENT(){
+	   
+   }
+   
+   static void generer_INDEX(){
+	   
+   }
+   
+   static void generer_INF(){
+	   
+   }
+   
+   static void generer_INF_EGAL(){
+	   
+   }
+   
+   static void generer_INTERVALLE(){
+	   
+   }
+   
+   static void generer_LECTURE(){
+	   
+   }
+   
+   static void generer_LISTE_DECL(){
+	   
+   }
+   
+   static void generer_LISTE_IDENT(){
+	   
+   }
+   
+   static void generer_LISTE_INST(){
+	   
+   }
+   
+   static void generer_LISTE_EXP(){
+	   
+   }
+   
+   static void generer_MOINS(){
+	   
+   }
+   
+   static void generer_MOINS_UNAIRE(){
+	   
+   }
+   
+   static void generer_MULT(){
+	   
+   }
+   
+   static void generer_NON(){
+	   
+   }
+   
+   static void generer_NON_EGAL(){
+	   
+   }
+   
+   static void generer_NOP(){
+	   
+   }
+   
+   static void generer_OU(){
+	   
+   }
+   
+   static void generer_PLUS(){
+	   
+   }
+   
+   static void generer_PLUS_UNAIRE(){
+	   
+   }
+   
+   static void generer_POUR(){
+	   
+   }
+   
+   static void generer_PROGRAMME(){
+	   
+   }
+   
+   static void generer_QUOTIENT(){
+	   
+   }
+   
+   static void generer_REEL(){
+	   
+   }
+   
+   static void generer_RESTE(){
+	   
+   }
+   
+   static void generer_SI(){
+	   
+   }
+
+   static void generer_SUP(){
+	   
+   }
+   
+   static void generer_SUP_EGAL(){
+	   
+   }
+   
+   static void generer_TABLEAU(){
+	   
+   }
+   
+   static void generer_TANT_QUE(){
+	   
+   }
+   
+   static void generer_VIDE(){
+	   
+   }
    
 }
 
