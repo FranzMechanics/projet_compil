@@ -1,0 +1,129 @@
+V "GNAT Lib v4.9"
+A -g
+A -gnato
+P SS ZX
+
+RN
+RV NO_ALLOCATORS
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_LOCAL_ALLOCATORS
+RV NO_RECURSION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_ELABORATION_CODE
+RV SPARK_05
+
+U ma_dict%b		ma_dict.adb		8ec51ba6 OO PK IU
+W ada.exceptions%s	a-except.adb		a-except.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W ma_token_io%s		ma_token_io.ads		ma_token_io.ali
+W mes_tables%s		mes_tables.adb		mes_tables.ali  EA
+W system%s		system.ads		system.ali
+W system.compare_array_unsigned_8%s  s-carun8.adb  s-carun8.ali
+W system.concat_2%s	s-conca2.adb		s-conca2.ali
+W system.exception_table%s  s-exctab.adb	s-exctab.ali
+W system.finalization_masters%s  s-finmas.adb	s-finmas.ali
+W system.img_int%s	s-imgint.adb		s-imgint.ali
+W system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+W system.standard_library%s  s-stalib.adb	s-stalib.ali
+W text_io%s		text_io.ads		text_io.ali
+Z types_base%s		types_base.adb		types_base.ali
+
+U ma_dict%s		ma_dict.ads		b0f120d1 EE NE OO PK IU
+W ma_syntax_tokens%s	ma_syntax_tokens.ads	ma_syntax_tokens.ali
+W types_base%s		types_base.adb		types_base.ali
+
+D ada.ads		20070406091342 3ffc8e18
+D a-except.ads		20140129161953 f86a4103
+D a-finali.ads		20111121113555 52ecdc1b
+D a-ioexce.ads		20140225151544 e4a01f64
+D a-stream.ads		20140122164720 1a984740
+D a-tags.ads		20111212115430 6c0509d0
+D a-textio.ads		20140129155348 386df5d4
+D a-tienio.ads		20090409150019 fc618ae6
+D a-unccon.ads		20070406091342 f9eb8f06
+D interfac.ads		20140225151838 69adb1b9
+D i-cstrea.ads		20130412125801 8128536b
+D ma_dict.ads		20080421140622 77d3cf85
+D ma_dict.adb		20080421140621 750d2c79
+D ma_syntax_tokens.ads	20080421140622 83527e9a
+D ma_token_io.ads	20080421140622 6bc02dbb
+D mes_tables.ads	20080421140621 a20df328
+D mes_tables.adb	20080421140621 22d61afb
+D pseudo_code.ads	20080421140621 2c476e81
+D system.ads		20160213141829 90249111
+D s-carun8.ads		20140225151544 a903718d
+D s-conca2.ads		20140225151544 02a0d7d0
+D s-crtl.ads		20140225151544 840e6817
+D s-exctab.ads		20140225151139 54135002
+D s-ficobl.ads		20120709130952 55a71d43
+D s-finmas.ads		20140225151139 814daec4
+D s-finroo.ads		20120426095924 4ff27390
+D s-imgint.ads		20090409150019 02dbe0c2
+D s-parame.ads		20140225151139 ab8cb46a
+D s-pooglo.ads		20110804083314 542f33d0
+D s-secsta.ads		20140225151139 86a2856d
+D s-soflin.ads		20140225151139 aa763b52
+D s-stache.ads		20140225151139 a37c21ec
+D s-stalib.ads		20140225151139 a891183f
+D s-stoele.ads		20140225151139 2dc34a04
+D s-stoele.adb		20140225151139 ed88f8fb
+D s-stopoo.ads		20131010103753 b16154c2
+D s-traent.ads		20140225151139 b5116092
+D s-unstyp.ads		20140225151139 510692af
+D s-wchcon.ads		20140225151139 1b7d22d2
+D text_io.ads		20070406091342 45d626c9
+D types_base.ads	20080421140621 447091ce
+X 7 a-textio.ads
+166U14*New_Line 13|62s7
+242U14*Put 13|58s7 59s7 60s7
+X 8 a-tienio.ads
+60U14*Put 13|61s7[15|13]
+X 12 ma_dict.ads
+16K9*MA_DICT 33l5 33e12 13|19b14 71l5 71t12
+18U13*mise_a_jour 18>25 18=40 18<61 13|28b13 38l7 38t18
+18s25 S{string} 13|28b25 32r29
+18e40 code{14|51E10} 13|28b40 34r29 36m5
+18p61 C{41|38P9} 13|28b61 37m5
+25U13*ins_tok 25>21 25>36 13|42b13 50l7 50t14
+25s21 S{string} 13|42b21 46r29
+25e36 code{14|51E10} 13|42b36 48r29
+28U13*imprimer 13|54b13 69l7 69t15
+X 13 ma_dict.adb
+21K11 MA_TABLE[16|31] 22r7
+24p3 dictio{16|37P9[21]} 32r21 46r21 68r18
+29p5 element{16|44P9[21]} 32m46 32r46 34r20 36r24 37r23
+30b5 existe{boolean} 32m38 33r12
+43p5 element{16|44P9[21]} 46m46 46r46 48r20
+44b5 existe{boolean} 46m38 47r12
+56U15 traiter 56b15 56>24 63l9 63t16 65r51
+56p24 e{16|44P9[21]} 59r38 61r22
+65U15 mon_parcours[16|110] 68s5
+X 14 ma_syntax_tokens.ads
+3K9*Ma_Syntax_Tokens 12|13w18 14r18 14|74e21
+51E10*Token 12|18r54 25r46 13|21r38 28r54 42r46 14|70e25
+52n39*Etiq_Lex{51E10} 13|21r45
+X 15 ma_token_io.ads
+13K9*MA_TOKEN_IO[8|46] 13|15w15 16r15
+X 16 mes_tables.ads
+31k9*MES_TABLES 13|15w28 21r27 16|131e15
+37P9*table 13|24r12[21]
+44P9*element_table 13|29r15[21] 43r15[21] 56r31[21]
+52V13*creation_table{37P9[13|21]} 13|24s21[21]
+60U14*chercher_string 13|32s5[21] 46s5[21]
+88V13*acces_chaine{41|38P9} 13|37s10[21] 59s25[21]
+92V13*acces_info{14|51E10} 13|36s13[21] 61s11[21]
+99U14*changer_info 13|34s7[21] 48s7[21]
+110u14*parcourir_table 13|65r35[21]
+X 40 text_io.ads
+24K9*Text_IO=24:29 13|15w6 16r6
+X 41 types_base.ads
+17K9*Types_Base 12|13w6 14r6 41|60e15
+37A9*St_Chaine<string>
+38P9*Chaine(37A9) 12|18r69 13|28r69
+47V13*Acces_String{string} 13|59s12
+

@@ -1,0 +1,93 @@
+V "GNAT Lib v4.9"
+A -g
+A -gnato
+P ZX
+
+RN
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_STANDARD_STORAGE_POOLS
+RV SPARK_05
+
+U lecture_entiers%b	lecture_entiers.adb	fceb5070 NE OO PK IU
+W ada.exceptions%s	a-except.adb		a-except.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W entier_es%s		entier_es.ads		entier_es.ali
+W interfaces%s		interfac.ads		interfac.ali
+W text_io%s		text_io.ads		text_io.ali
+
+U lecture_entiers%s	lecture_entiers.ads	b02104db EE NE OO PK IU
+W types_base%s		types_base.adb		types_base.ali
+
+D ada.ads		20070406091342 3ffc8e18
+D a-except.ads		20140129161953 f86a4103
+D a-finali.ads		20111121113555 52ecdc1b
+D a-ioexce.ads		20140225151544 e4a01f64
+D a-stream.ads		20140122164720 1a984740
+D a-tags.ads		20111212115430 6c0509d0
+D a-textio.ads		20140129155348 386df5d4
+D a-tiinio.ads		20090409150019 aa04e5d6
+D a-unccon.ads		20070406091342 f9eb8f06
+D entier_es.ads		20080421140621 1384aef2
+D interfac.ads		20140225151838 69adb1b9
+D i-cstrea.ads		20130412125801 8128536b
+D lecture_entiers.ads	20080421140621 f4519515
+D lecture_entiers.adb	20080421140621 5ee84d5e
+D system.ads		20160213141829 90249111
+D s-crtl.ads		20140225151544 840e6817
+D s-exctab.ads		20140225151139 54135002
+D s-ficobl.ads		20120709130952 55a71d43
+D s-finmas.ads		20140225151139 814daec4
+D s-finroo.ads		20120426095924 4ff27390
+D s-parame.ads		20140225151139 ab8cb46a
+D s-pooglo.ads		20110804083314 542f33d0
+D s-soflin.ads		20140225151139 aa763b52
+D s-stache.ads		20140225151139 a37c21ec
+D s-stalib.ads		20140225151139 a891183f
+D s-stoele.ads		20140225151139 2dc34a04
+D s-stoele.adb		20140225151139 ed88f8fb
+D s-stopoo.ads		20131010103753 b16154c2
+D s-traent.ads		20140225151139 b5116092
+D s-unstyp.ads		20140225151139 510692af
+D s-wchcon.ads		20140225151139 1b7d22d2
+D text_io.ads		20070406091342 45d626c9
+D types_base.ads	20080421140621 447091ce
+X 7 a-textio.ads
+169U14*Skip_Line 14|35s9
+172V13*End_Of_Line{boolean} 14|33s10 46s10 66s17
+206U14*Get 14|37s9 49s9 67s9
+298X4*Data_Error 14|90r21 99r21 113r23 116r21 119r17 132r14 135r13
+X 8 a-tiinio.ads
+70U14*Get 14|130s9[10|17]
+X 10 entier_es.ads
+17K9*Entier_ES[8|45] 14|12w15 13r15
+X 13 lecture_entiers.ads
+13K9*LECTURE_ENTIERS 37l5 37e20 14|15b14 139l5 139t20
+15U13*lire_entier 15<25 14|19b13 137l7 137t18
+15i25 x{33|26I9} 14|19b25 130m37
+X 14 lecture_entiers.adb
+17a3 S{string} 83m15 87m15 96m15 105m15 110m17 130r13
+21E10 Etat 21e45 24r16
+21n19 debut{21E10} 24r24 79r14
+21n26 apsigne{21E10} 84r27 92r14 111r29
+21n35 apchiffre{21E10} 88r27 97r27 101r14 128r19
+22E13 Chiffre{character} 85r18 94r18 103r18
+23b5 dansmantisse{boolean} 107r18 108m17
+24e5 etatcour{21E10} 78r12 84m15 88m15 97m15 111m17 128r8
+25e5 carcour{character} 34m9 37m13 47m9 49m13 57r13 66r33 67m13 77r11 80r16
+. 83r36 87r36 93r16 96r36 102r16 105r36 110r38
+26i5 indice_dernier{natural} 82m15 82r33 83r17 86m15 86r33 87r17 95m15 95r33
+. 96r17 104m15 104r33 105r17 109m17 109r35 110r19 130r20
+27i5 pos{positive} 130m40
+31U15 carsuiv1 31b15 39l9 39t17 58s9
+43U15 carsuiv2 43b15 51l9 51t17 121s7
+55U15 passer_espaces1 55b15 60l9 60t24 74s5
+64U15 passer_espaces2 64b15 69l9 69t24
+X 32 text_io.ads
+24K9*Text_IO=24:29 14|12w6 13r6
+X 33 types_base.ads
+17K9*Types_Base 13|10w6 11r6 33|60e15
+26I9*Entier<integer> 13|15r33 14|19r33
+

@@ -1,0 +1,80 @@
+V "GNAT Lib v4.9"
+A -g
+A -gnato
+P ZX
+
+RN
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_STANDARD_STORAGE_POOLS
+RV SPARK_05
+
+U ma_token_io%b		ma_token_io.ads		6bc02dbb NE OO PK IU
+Z ada%s			ada.ads			ada.ali
+W ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.text_io%s		a-textio.adb		a-textio.ali
+Z ada.text_io.enumeration_aux%s  a-tienau.adb	a-tienau.ali
+W ada.text_io.enumeration_io%s
+W interfaces%s		interfac.ads		interfac.ali
+W ma_syntax_tokens%s	ma_syntax_tokens.ads	ma_syntax_tokens.ali
+W system%s		system.ads		system.ali
+W system.img_enum_new%s	s-imenne.adb		s-imenne.ali
+W system.val_enum%s	s-valenu.adb		s-valenu.ali
+W text_io%s		text_io.ads		text_io.ali
+
+U ma_token_io%s		ma_token_io.ads		ad4475e8 EB NE OO PK IU
+Z ada.text_io%s		a-textio.adb		a-textio.ali
+W ada.text_io.enumeration_io%s
+W ma_syntax_tokens%s	ma_syntax_tokens.ads	ma_syntax_tokens.ali
+W text_io%s		text_io.ads		text_io.ali
+
+D ada.ads		20070406091342 3ffc8e18
+D a-except.ads		20140129161953 f86a4103
+D a-finali.ads		20111121113555 52ecdc1b
+D a-ioexce.ads		20140225151544 e4a01f64
+D a-stream.ads		20140122164720 1a984740
+D a-tags.ads		20111212115430 6c0509d0
+D a-textio.ads		20140129155348 386df5d4
+D a-tienau.ads		20090409150019 6a9c157b
+D a-tienio.ads		20090409150019 fc618ae6
+D a-tienio.adb		20140224170426 c9e6b5af
+D a-unccon.ads		20070406091342 f9eb8f06
+D interfac.ads		20140225151838 69adb1b9
+D i-cstrea.ads		20130412125801 8128536b
+D ma_syntax_tokens.ads	20080421140622 83527e9a
+D ma_token_io.ads	20080421140622 6bc02dbb
+D ma_token_io.ads	20080421140622 6bc02dbb
+D pseudo_code.ads	20080421140621 2c476e81
+D system.ads		20160213141829 90249111
+D s-crtl.ads		20140225151544 840e6817
+D s-exctab.ads		20140225151139 54135002
+D s-ficobl.ads		20120709130952 55a71d43
+D s-finmas.ads		20140225151139 814daec4
+D s-finroo.ads		20120426095924 4ff27390
+D s-imenne.ads		20140225151139 614c06c0
+D s-parame.ads		20140225151139 ab8cb46a
+D s-pooglo.ads		20110804083314 542f33d0
+D s-soflin.ads		20140225151139 aa763b52
+D s-stache.ads		20140225151139 a37c21ec
+D s-stalib.ads		20140225151139 a891183f
+D s-stoele.ads		20140225151139 2dc34a04
+D s-stoele.adb		20140225151139 ed88f8fb
+D s-stopoo.ads		20131010103753 b16154c2
+D s-traent.ads		20140225151139 b5116092
+D s-unstyp.ads		20140225151139 510692af
+D s-valenu.ads		20090409150019 bb1a4295
+D s-wchcon.ads		20140225151139 1b7d22d2
+D text_io.ads		20070406091342 45d626c9
+D types_base.ads	20080421140621 447091ce
+X 9 a-tienio.ads
+46k21*Enumeration_IO 75e31 16|13r28
+X 14 ma_syntax_tokens.ads
+3K9*Ma_Syntax_Tokens 74e21 16|10w15 11r15
+51E10*Token 70e25 16|13r43
+X 16 ma_token_io.ads
+13K9*MA_TOKEN_IO[9|46]
+X 37 text_io.ads
+24K9*Text_IO=24:29 16|10w6 11r6
+

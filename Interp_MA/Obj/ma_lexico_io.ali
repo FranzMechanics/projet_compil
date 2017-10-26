@@ -1,0 +1,150 @@
+V "GNAT Lib v4.9"
+A -g
+A -gnato
+P ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_RECURSION
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_ELABORATION_CODE
+RV NO_OBSOLESCENT_FEATURES
+RV SPARK_05
+
+U ma_lexico_io%b	ma_lexico_io.adb	ce8c6475 NE OO PK IU
+W ada.exceptions%s	a-except.adb		a-except.ali
+W interfaces%s		interfac.ads		interfac.ali
+
+U ma_lexico_io%s	ma_lexico_io.ads	e7886c03 EE OO PK IU
+W ada%s			ada.ads			ada.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W ma_lexico_dfa%s	ma_lexico_dfa.adb	ma_lexico_dfa.ali
+W system%s		system.ads		system.ali
+W system.exception_table%s  s-exctab.adb	s-exctab.ali
+W system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+D ada.ads		20070406091342 3ffc8e18
+D a-except.ads		20140129161953 f86a4103
+D a-finali.ads		20111121113555 52ecdc1b
+D a-ioexce.ads		20140225151544 e4a01f64
+D a-stream.ads		20140122164720 1a984740
+D a-tags.ads		20111212115430 6c0509d0
+D a-textio.ads		20140129155348 386df5d4
+D a-unccon.ads		20070406091342 f9eb8f06
+D interfac.ads		20140225151838 69adb1b9
+D i-cstrea.ads		20130412125801 8128536b
+D ma_lexico_dfa.ads	20080421140621 a47f2bc3
+D ma_lexico_io.ads	20080421140621 7b9ab214
+D ma_lexico_io.adb	20080421140622 b516d661
+D system.ads		20160213141829 90249111
+D s-crtl.ads		20140225151544 840e6817
+D s-exctab.ads		20140225151139 54135002
+D s-ficobl.ads		20120709130952 55a71d43
+D s-finmas.ads		20140225151139 814daec4
+D s-finroo.ads		20120426095924 4ff27390
+D s-parame.ads		20140225151139 ab8cb46a
+D s-pooglo.ads		20110804083314 542f33d0
+D s-soflin.ads		20140225151139 aa763b52
+D s-stache.ads		20140225151139 a37c21ec
+D s-stalib.ads		20140225151139 a891183f
+D s-stoele.ads		20140225151139 2dc34a04
+D s-stoele.adb		20140225151139 ed88f8fb
+D s-stopoo.ads		20131010103753 b16154c2
+D s-traent.ads		20140225151139 b5116092
+D s-unstyp.ads		20140225151139 510692af
+D s-wchcon.ads		20140225151139 1b7d22d2
+X 1 ada.ads
+16K9*Ada 19e8 12|2r6 2r23 13|232r7 234r7 260r6 267r6
+X 7 a-textio.ads
+49K13*Text_IO 471e16 12|2w10 2r27 13|232r11 234r11 260r10 267r10
+52P9*File_Type 12|5r19 6r20
+53n23*In_File{53E9} 13|247r27
+53n32*Out_File{53E9} 13|253r34
+86U14*Create 13|253s9
+92U14*Open 13|247s5
+98U14*Close 13|260s18 267s18
+107V13*Is_Open{boolean} 13|11s9 231s9 259s8 266s8
+168U14*Skip_Line 13|15s14
+169U14*Skip_Line 13|35s14
+171V13*End_Of_Line{boolean} 13|13s14
+172V13*End_Of_Line{boolean} 13|33s14
+205U14*Get 13|23s12
+206U14*Get 13|43s12
+207U14*Put 13|232s19
+208U14*Put 13|234s19
+297X4*End_Error 13|55r14
+X 11 ma_lexico_dfa.ads
+1K9*ma_lexico_DFA 28e18 12|1w6 1r25
+3i1*yytext_ptr{integer} 13|69r25 81r36 127m5 171m5 190m5 199r27 209m9 214r23
+8i1*YY_READ_BUF_SIZE{integer} 13|97r24 98r24
+9i1*YY_BUF_SIZE{integer} 13|95r20 144r13 155r19
+10A6*unbounded_character_array(character)<integer> 12|22r29 13|5r29
+12a1*yy_ch_buf{11A9} 13|84m9 84r28 102m15 102r15 102r41 117m5 118m5 139m5
+. 150m13 150r32 162r37 163m5 167m5 172r21 173m5 186m5 188r10 203m9 205m9
+. 206m9 210r25 222r10 224r21
+13i8*yy_bp{integer} 13|179m18 179r18
+16e1*yy_hold_char{character} 13|139r29 172m5 186r25 210m9 224m5
+17i1*yy_c_buf_p{integer} 13|74r10 81r23 138r18 174m5 184r24 188r20 190r19
+. 191m5 191r19 199m13 208m9 209r23 210r35 214m9 222r20 223m5 223r19 224r31
+23b1*yy_init{boolean} 13|246m5
+X 12 ma_lexico_io.ads
+4K9*ma_lexico_IO 35l5 35e17 13|1b14 272l5 272t17
+5p1*user_input_file{7|52P9} 13|11r17 13r26 15r24 23r16 247m10 247r10 259r16
+. 260m24 260r24
+6p1*user_output_file{7|52P9} 13|231r17 232r23 253m16 253r16 266r16 267m24
+. 267r24
+7X1*NULL_IN_INPUT 13|75r15
+8X1*AFLEX_INTERNAL_ERROR
+9X1*UNEXPECTED_LAST_MATCH 13|217r15
+10X1*PUSHBACK_OVERFLOW 13|158r15
+11X1*AFLEX_SCANNER_JAMMED
+12E6*eob_action_type 14e47 23r36 13|67r36 71r15
+12n27*EOB_ACT_RESTART_SCAN{12E6} 13|113r16 213r14
+13n27*EOB_ACT_END_OF_FILE{12E6} 13|106r20 197r14
+14n27*EOB_ACT_LAST_MATCH{12E6} 13|108r20 216r14
+15e1*YY_END_OF_BUFFER_CHAR{character} 13|117r30 118r34 188r34 205r34 206r38
+16i1*yy_n_chars{integer} 13|74r23 93m5 102m58 104r10 116m5 116r19 117r15
+. 118r15 143r23 155m5 204m9 205r19 206r19
+19b1*yy_eof_has_been_seen{boolean} 13|57m5 89r10 111m5 207m9
+22U11*YY_INPUT 22<20 22<56 22>77 13|5b11 58l5 58t13 102s5
+22a20 buf{11|10A6} 13|5b20 8r22 14m14 24m12 34m14 44m12
+22i56 result{integer} 13|5b56 53m5 55m27
+22i77 max_size{integer} 13|5b77 12r20 32r20
+23V10*yy_get_next_buffer{12E6} 13|67b10 130l5 130t23 193s10
+24U11*yyunput 24>20 24=35 13|132b11 175l5 175t12 179s6
+24e20 c{character} 13|132b20 167r29
+24i35 yy_bp{integer} 13|132b35 154m5 154r14 162r22 171r19
+25U11*unput 25>17 13|177b11 180l5 180t10
+25e17 c{character} 13|177b17 179r15
+26V10*input{character} 13|182b10 212s18 227l5 227t10
+27U11*output 27>18 13|229b11 236l5 236t11
+27e18 c{character} 13|229b18 232r41 234r23
+28V10*yywrap{boolean} 13|198s14 239b10 242l5 242t11
+29U11*Open_Input 29>22 13|244b11 248l5 248t15
+29s22 fname{string} 13|244b22 247r36
+30U11*Close_Input 13|257b11 262l5 262t16
+31U11*Create_Output 31>25 13|250b11 255l5 255t18
+31s25 fname{string} 13|250b25 252r9 253r44
+32U11*Close_Output 13|264b11 269l5 269t17
+X 13 ma_lexico_io.adb
+6e5 c{character} 23m33 24r24 43m16 44r24
+7i5 i{integer} 12r15 29m10 29r15 32r15 49m10 49r15 53r15 55r37
+8i5 loc{integer} 14r18 24r16 28m10 28r17 34r18 44r16 48m10 48r17
+68i5 dest{integer} 84r19 85m5 85r13
+69i5 source{integer} 84r38 86m5 86r15
+70i5 number_to_move{integer} 81m5 83r17 95r34 102r25 105r10 116r32
+71e5 ret_val{12|12E6} 106m9 108m9 113m5 129r12
+72i5 num_to_read{integer} 95m5 97r10 98m9 102r70
+83i9 i{integer}
+133i5 number_to_move{integer} 143m5 145r15
+134i5 dest{integer} 144m5 148m9 148r17 150r23 153r30 154r22
+135i5 source{integer} 145m5 147r13 149m9 149r19 150r42 153r37 154r29
+136i5 tmp_yy_cp{integer} 138m5 139r15 141r10 153m5 153r18 157r10 162r10 162r47
+. 163r15 166m5 166r18 167r15 172r31 173r15 174r19
+183e5 c{character} 222m5 226r12
+184i5 yy_cp{integer} 186r15
+
