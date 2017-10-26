@@ -44,6 +44,53 @@ class Generation {
       // On retourne le programme assembleur généré
       return Prog.instance(); 
    }
+   
+   
+   
+   
+   
+   
+   static Inst generer_LIGNE(){
+	   return Inst.creation0(Operation.WNL);
+   }
+   
+   
+   
+   
+   
+   
+   static void generer_ECRITURE(Arbre a) {
+	   
+	   Inst inst ; 
+	   
+	   switch (a.getDecor().getType().getNature()) {
+	   
+	   case String : 
+		   inst = Inst.creation1(Operation.WSTR, Operande.creationOpChaine(a.getChaine()));
+		   Prog.ajouter(inst);
+		   break ; 
+		   
+	   case Interval : 
+		   inst = Inst.creation0(Operation.WINT);
+		   Prog.ajouter(inst);
+		   break; 
+		   
+	   case Real : 
+		   inst = Inst.creation0(Operation.WFLOAT);
+		   Prog.ajouter(inst);
+		   break ; 
+		   
+	   default:
+		   break;
+		   
+	   }
+	
+	   
+	  
+   }
+   
+   
+   
 }
 
 
