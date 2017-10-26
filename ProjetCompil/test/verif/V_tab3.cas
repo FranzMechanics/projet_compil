@@ -1,0 +1,8 @@
+-- VRAI,
+
+program
+    tab:array[1..10] of integer ;
+    x:real;
+begin
+    x:=tab[5];
+end.

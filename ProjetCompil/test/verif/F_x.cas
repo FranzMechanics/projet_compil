@@ -1,0 +1,11 @@
+-- FAUX, test multiplication
+
+program
+    x:integer;
+    y:real;
+    res:boolean;
+begin
+    x:=5;
+    y:=10;
+    res:=x*y;
+end.

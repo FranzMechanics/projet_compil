@@ -1,0 +1,7 @@
+-- FAUX, verification de type / affectation d'un Type.Real a un Type.Integer
+
+program
+    x: integer;
+begin
+    x:= 0.5; -- Interdit
+end.

@@ -1,0 +1,9 @@
+-- VRAI, test div
+
+program
+    x: integer;
+    y:integer;
+    res:integer;
+begin
+    res:= x div y;
+end.

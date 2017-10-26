@@ -1,0 +1,9 @@
+-- FAUX, egal
+
+program
+    x:integer;
+    y:real;
+    b:boolean;
+begin
+    b:= x=y;
+end.

@@ -1,0 +1,7 @@
+-- FAUX, infegal
+
+program
+    b:boolean;
+begin
+    b:= 3<=true;
+end.

@@ -1,0 +1,7 @@
+-- VRAI, verification de type  Affectation d'un Type.Boolean a un Type.Boolean
+
+program
+b: boolean;
+begin
+    b:= true;
+end.

@@ -1,0 +1,9 @@
+-- VRAI, Verification de type / Test affectations de type Type.Interval
+
+program
+
+i: integer;
+
+begin
+    i := 5;
+end.

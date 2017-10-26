@@ -1,0 +1,7 @@
+-- VRAI, affectation boolean
+
+program
+    b:boolean;
+begin
+    b:= 1 = 2.5;
+end.

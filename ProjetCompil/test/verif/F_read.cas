@@ -1,0 +1,7 @@
+-- FAUX, read
+
+program
+    b:boolean;
+begin
+    read(b);
+end.

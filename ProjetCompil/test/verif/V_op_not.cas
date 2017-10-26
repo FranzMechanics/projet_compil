@@ -1,0 +1,10 @@
+-- VRAI
+-- Profil de l'operateur not
+
+program
+
+b, res: boolean;
+begin
+  b := true;
+  res := not b;     -- res recoit non b, le resultat de l'affectation est de type Type Boolean
+end.

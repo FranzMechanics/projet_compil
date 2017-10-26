@@ -1,0 +1,8 @@
+--FAUX, inf
+
+
+program
+  b : boolean ;
+begin
+  b:= true < 3 ;
+end.

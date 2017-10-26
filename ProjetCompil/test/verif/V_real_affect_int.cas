@@ -1,0 +1,11 @@
+-- VRAI, verification de type
+-- Affectation d'un Type.Integer a un Type.real
+
+program
+    x: integer;
+    y: real;
+
+begin
+    x:= 5;
+    y:= x;
+end.

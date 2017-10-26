@@ -1,0 +1,7 @@
+--FAUX, +
+
+program
+    x:integer;
+begin
+    x:=1+true;
+end.

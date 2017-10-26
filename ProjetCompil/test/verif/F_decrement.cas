@@ -1,0 +1,10 @@
+-- FAUX, decrement
+
+program
+    i:boolean ;
+
+begin
+    for b := 20 to 0 do
+        T[i] := 2 * i ;
+    end ;
+end.

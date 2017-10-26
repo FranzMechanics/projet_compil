@@ -1,0 +1,7 @@
+-- FAUX, test quotient
+
+program
+    x:integer;
+begin
+    x:= 3/true;
+end.

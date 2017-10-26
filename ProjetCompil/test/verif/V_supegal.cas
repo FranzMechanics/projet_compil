@@ -1,0 +1,7 @@
+-- VRAI, supegal
+
+program
+    b:boolean;
+begin
+    b:= 3.3>=4;
+end.

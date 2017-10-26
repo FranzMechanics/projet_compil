@@ -1,0 +1,7 @@
+-- FAUX, test mod
+
+program
+    x:integer;
+begin
+    x:= 3 mod true;
+end.

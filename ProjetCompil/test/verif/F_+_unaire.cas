@@ -1,0 +1,7 @@
+--FAUX, test du + unaire
+
+program
+    x:integer;
+begin
+    x:=+true;
+end.

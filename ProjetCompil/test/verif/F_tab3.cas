@@ -1,0 +1,8 @@
+-- FAUX,
+
+program
+    tab:array[1..10] of real ;
+    x:integer;
+begin
+    x:=tab[5];      -- interdit
+end.

@@ -1,0 +1,7 @@
+-- FAUX, Affectation a un identificateur non declare
+
+program
+
+begin
+    x := 5; -- interdit sans declaration prealable
+end.

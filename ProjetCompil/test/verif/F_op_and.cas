@@ -1,0 +1,11 @@
+-- faux
+
+program
+    b:boolean;
+    b2:integer;
+    res:integer;
+begin
+    b:=true;
+    b2:=1;
+    res:=b and b2; -- interdit
+end.

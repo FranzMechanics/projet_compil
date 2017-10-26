@@ -1,0 +1,12 @@
+-- VRAI
+-- Profil de l'operateur and
+
+program
+  b: boolean;
+  b2: boolean;
+  res: boolean;
+begin
+  b:= true;
+  b2:= true;
+  res:= b and b2;
+end.

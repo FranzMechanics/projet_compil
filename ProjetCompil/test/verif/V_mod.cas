@@ -1,0 +1,9 @@
+-- VRAI, test mod
+
+program
+    x: integer;
+    y:integer;
+    res:integer;
+begin
+    res:= x mod y;
+end.
