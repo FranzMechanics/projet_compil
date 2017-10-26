@@ -1,0 +1,7 @@
+-- test
+
+program
+    a: array[1..max_int] of real;
+begin
+    null;
+end.

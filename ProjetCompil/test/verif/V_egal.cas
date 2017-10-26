@@ -1,0 +1,12 @@
+-- VRAI, operateur EGAL
+
+program
+    x:integer;
+    y:real;
+begin
+    x:=10;
+    y:=5.5;
+    if x = y 
+        write("test");
+    end;
+end.

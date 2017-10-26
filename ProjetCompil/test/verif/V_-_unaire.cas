@@ -1,0 +1,7 @@
+--VRAI, test du - unaire
+
+program
+    x:real;
+begin
+    x:=-3.1;
+end.

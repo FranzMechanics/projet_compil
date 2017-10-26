@@ -1,0 +1,10 @@
+-- FAUX, increment
+
+program
+    i:integer;
+
+begin
+    for i := true to 20 do
+        T[i] := 2 * i ;
+    end ;
+end.

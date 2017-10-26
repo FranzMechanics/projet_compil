@@ -1,0 +1,7 @@
+-- VRAI, infegal
+
+program
+    b:boolean;
+begin
+    b:= 3<=4.4;
+end.

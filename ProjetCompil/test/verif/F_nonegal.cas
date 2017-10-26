@@ -1,0 +1,7 @@
+--FAUX, nonegal
+
+program
+  b : boolean ;
+begin
+  b:= true /= 3 ;
+end.

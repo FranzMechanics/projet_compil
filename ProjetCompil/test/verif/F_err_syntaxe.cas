@@ -1,0 +1,7 @@
+-- FAUX, erreur syntaxe
+
+program
+    x: integer
+begin
+    null;
+end.

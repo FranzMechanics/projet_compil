@@ -17,6 +17,7 @@ public enum ErreurContext {
 	ErreurVariableRedeclaree,
 	ErreurVariableNonDeclaree,
 	ErreurTypageNonCompatible,
+	ErreurTypeIndefini,
 	ErreurIdentNomReserve;
 
    void leverErreurContext(String s, int numLigne) throws ErreurVerif {
@@ -25,6 +26,10 @@ public enum ErreurContext {
       case ErreurVariableRedeclaree:
     	  System.err.println("Variable redéclarée");
     	  System.err.print(s);
+    	  break;
+      case ErreurTypeIndefini:
+    	  System.err.println("Type indéfini");
+    	  System.err.print("Le type "+s+" est indéfini dans l'environnement");
     	  break;
       case ErreurVariableNonDeclaree:
     	  System.err.println("Variable non déclarée");

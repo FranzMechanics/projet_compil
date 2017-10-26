@@ -1,0 +1,7 @@
+-- FAUX, Type non defini
+
+program
+    x: coucou;
+begin
+    null;
+end.

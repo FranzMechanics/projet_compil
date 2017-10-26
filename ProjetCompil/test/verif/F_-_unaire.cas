@@ -1,0 +1,7 @@
+--FAUX, test du - unaire
+
+program
+    x:boolean;
+begin
+    x:=-3.1;
+end.
