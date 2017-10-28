@@ -2,6 +2,7 @@ package fr.esisar.compilation.gencode;
 
 import fr.esisar.compilation.global.src.*;
 import fr.esisar.compilation.global.src3.*;
+import fr.esisar.compilation.verif.ErreurInterneVerif;
 
 /**
  * Génération de code pour un programme JCas à partir d'un arbre décoré.
@@ -33,7 +34,11 @@ class Generation {
 	  Inst inst;
       Prog.ajouterGrosComment("Programme généré par JCasc");
 
+      int nbVariables = generer_LISTE_DECL(a.getFils1());
+      Prog.ajouter(Inst.creation1(Operation.ADDSP, Operande.creationOpEntier(nbVariables)));
       
+      generer_LISTE_INST(a.getFils2());
+
 
       // Fin du programme
       // L'instruction "HALT"
@@ -47,12 +52,12 @@ class Generation {
    
    
    
-   static void generer_LIGNE(){
+   private static void generer_LIGNE(){
 	   Prog.ajouter(Inst.creation0(Operation.WNL));
    }  
    
    
-   static void generer_ECRITURE(Arbre a) {
+   private static void generer_ECRITURE(Arbre a) {
 	   
 	   Inst inst ; 
 	   
@@ -79,163 +84,191 @@ class Generation {
 	   }
    }
    
-   static void generer_AFFECT(){
+   private static void generer_AFFECT(Arbre a){
 	   
    }
    
-   static void generer_CHAINE(){
+   private static void generer_CHAINE(Arbre a){
 	   
    }
    
-   static void generer_CONVERSION(){
+   private static void generer_CONVERSION(Arbre a){
 	   
    }
    
-   static void generer_DECL(){
+   private static int generer_LISTE_DECL(Arbre a){
+	   int count = 0;
+	   switch (a.getNoeud()){
+		case Vide : break ;
+		case ListeDecl:
+			count += generer_LISTE_DECL(a.getFils1());
+			count += generer_DECL(a.getFils2());
+			return count;
+	   }
+	   return 0;
+   }
+   
+   private static int generer_DECL(Arbre a){
+	   int count = 0;
+	   switch(a.getNoeud()){
+	   	case Decl :
+	   		count += generer_LISTE_IDENT(a.getFils1());
+	   		return count;
+	   }
+	   return 0;
+   }
+   
+   private static void generer_DECREMENT(Arbre a){
 	   
    }
    
-   static void generer_DECREMENT(){
+   private static void generer_DIV_REEL(Arbre a){
 	   
    }
    
-   static void generer_DIV_REEL(){
+   private static void generer_EGAL(Arbre a){
 	   
    }
    
-   static void generer_EGAL(){
+   private static void generer_ENTIER(Arbre a){
 	   
    }
    
-   static void generer_ENTIER(){
+   private static void generer_ET(Arbre a){
 	   
    }
    
-   static void generer_ET(){
+   private static void generer_IDENT(Arbre a){
 	   
    }
    
-   static void generer_IDENT(){
+   private static void generer_INCREMENT(Arbre a){
 	   
    }
    
-   static void generer_INCREMENT(){
+   private static void generer_INDEX(Arbre a){
 	   
    }
    
-   static void generer_INDEX(){
+   private static void generer_INF(Arbre a){
 	   
    }
    
-   static void generer_INF(){
+   private static void generer_INF_EGAL(Arbre a){
 	   
    }
    
-   static void generer_INF_EGAL(){
+   private static void generer_INTERVALLE(Arbre a){
 	   
    }
    
-   static void generer_INTERVALLE(){
+   private static void generer_LECTURE(Arbre a){
 	   
    }
    
-   static void generer_LECTURE(){
+   
+   
+   private static int generer_LISTE_IDENT(Arbre a){
+	   int count = 0;
+	   switch(a.getNoeud()){
+	   	case Vide : break ;
+	   	case ListeIdent :
+	   		count += generer_LISTE_IDENT(a.getFils1());
+	   		count += generer_IDENT_DECL(a.getFils2());
+	   		return count;
+	   }
+	return 0;
+   }
+   
+   private static int generer_IDENT_DECL(Arbre a){
+	   return 1;
+   }
+   
+   private static void generer_LISTE_INST(Arbre a){
 	   
    }
    
-   static void generer_LISTE_DECL(){
+   private static void generer_LISTE_EXP(Arbre a){
 	   
    }
    
-   static void generer_LISTE_IDENT(){
+   private static void generer_MOINS(Arbre a){
 	   
    }
    
-   static void generer_LISTE_INST(){
+   private static void generer_MOINS_UNAIRE(Arbre a){
 	   
    }
    
-   static void generer_LISTE_EXP(){
+   private static void generer_MULT(Arbre a){
 	   
    }
    
-   static void generer_MOINS(){
+   private static void generer_NON(Arbre a){
 	   
    }
    
-   static void generer_MOINS_UNAIRE(){
+   private static void generer_NON_EGAL(Arbre a){
 	   
    }
    
-   static void generer_MULT(){
+   private static void generer_NOP(Arbre a){
 	   
    }
    
-   static void generer_NON(){
+   private static void generer_OU(Arbre a){
 	   
    }
    
-   static void generer_NON_EGAL(){
+   private static void generer_PLUS(Arbre a){
 	   
    }
    
-   static void generer_NOP(){
+   private static void generer_PLUS_UNAIRE(Arbre a){
 	   
    }
    
-   static void generer_OU(){
+   private static void generer_POUR(Arbre a){
 	   
    }
    
-   static void generer_PLUS(){
+   private static void generer_PROGRAMME(Arbre a){
 	   
    }
    
-   static void generer_PLUS_UNAIRE(){
+   private static void generer_QUOTIENT(Arbre a){
 	   
    }
    
-   static void generer_POUR(){
+   private static void generer_REEL(Arbre a){
 	   
    }
    
-   static void generer_PROGRAMME(){
+   private static void generer_RESTE(Arbre a){
 	   
    }
    
-   static void generer_QUOTIENT(){
-	   
-   }
-   
-   static void generer_REEL(){
-	   
-   }
-   
-   static void generer_RESTE(){
-	   
-   }
-   
-   static void generer_SI(){
+   private static void generer_SI(Arbre a){
 	   
    }
 
-   static void generer_SUP(){
+   private static void generer_SUP(Arbre a){
 	   
    }
    
-   static void generer_SUP_EGAL(){
+   private static void generer_SUP_EGAL(Arbre a){
 	   
    }
    
-   static void generer_TABLEAU(){
+   private static void generer_TABLEAU(Arbre a){
 	   
    }
    
-   static void generer_TANT_QUE(){
+   private static void generer_TANT_QUE(Arbre a){
 	   
    }
    
-   static void generer_VIDE(){
+   private static void generer_VIDE(Arbre a){
 	   
    }
    
