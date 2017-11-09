@@ -5,6 +5,7 @@ program
 x,y:real;
 
 begin
-    x:=0.5+2.0;
+    y:=3.0;
+    x:=0.5+y+3.0;
     write("x=",x);
 end.

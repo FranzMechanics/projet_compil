@@ -23,7 +23,14 @@ class Generation {
 				count++;
 			}
 		}
-		return (count >= nbRegNecessaires);
+		return (count < nbRegNecessaires);
+	}
+	
+	private static void printReg(){
+		int count = 0;
+		for(boolean i: tabRegAlloue){
+			System.out.println("R"+count+" : "+i);
+		}
 	}
 	
 	private static void initTabReg(){
@@ -42,8 +49,9 @@ class Generation {
 	private static Registre premierRegLibre(){
 		int count = 0;
 		for(boolean i: tabRegAlloue){
-			if(i == true){
+			if(i == false){
 				Registre[] tabReg = Registre.values();
+				allouerReg(count);
 				return tabReg[count];
 			}
 			count++;
@@ -57,7 +65,7 @@ class Generation {
     * Génère du code pour l'arbre décoré a.
     */
    public static Prog coder(Arbre a) {
-	  
+	  initTabReg();
 	  Inst inst;
       Prog.ajouterGrosComment("Programme généré par JCasc");
 
@@ -93,7 +101,7 @@ private static void generer_ECRITURE(Arbre a) {
 		   break ;
 		   
 	   case Entier :
-		   Prog.ajouter("Ecriture d'un entier, ligne "+ a.getNumLigne());
+		   Prog.ajouterComment("Ecriture d'un entier, ligne "+ a.getNumLigne());
 		   inst = Inst.creation2(Operation.LOAD,Operande.creationOpEntier(a.getEntier()),Operande.R1);
 		   Prog.ajouter(inst);
 		   inst = Inst.creation0(Operation.WINT);
@@ -101,7 +109,7 @@ private static void generer_ECRITURE(Arbre a) {
 		   break ;
 		   
 	   case Reel :
-		   Prog.ajouter("Ecriture d'un réel");
+		   Prog.ajouterComment("Ecriture d'un réel, ligne "+ a.getNumLigne());
 		   inst = Inst.creation2(Operation.LOAD,Operande.creationOpReel(a.getReel()),Operande.R1);
 		   Prog.ajouter(inst);
 		   inst = Inst.creation0(Operation.WFLOAT);
@@ -109,13 +117,13 @@ private static void generer_ECRITURE(Arbre a) {
 		   break ;
 		   
 	   case Chaine :
-		   Prog.ajouter("Ecriture d'une chaine de caractères");
+		   Prog.ajouterComment("Ecriture d'une chaîne, ligne "+ a.getNumLigne());
 		   inst = Inst.creation1(Operation.WSTR,Operande.creationOpChaine(a.getChaine()));
 		   Prog.ajouter(inst);
 		   break ;
 		   
 	   case Ident : 
-		   Prog.ajouter("Ecriture d'un IDENT");
+		   Prog.ajouterComment("Ecriture de variable, ligne "+ a.getNumLigne());
 		   generer_ECRITURE_IDENT(a);
 		   break ;
 		   
@@ -224,9 +232,11 @@ private static void generer_ECRITURE(Arbre a) {
    /**************************************************************************
     * IDENT_UTIL
     **************************************************************************/
-   private static void generer_IDENT_UTIL(Arbre a)  {
-	   Inst inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), Operande.opDirect(Registre.R0));
+   private static Operande generer_IDENT_UTIL(Arbre a)  {
+	   Operande op = Operande.opDirect(premierRegLibre());
+	   Inst inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), op);
 	   Prog.ajouter(inst);
+	   return op;
    }
 
    /**************************************************************************
@@ -310,9 +320,13 @@ private static void generer_ECRITURE(Arbre a) {
 		case Affect:
 			generer_PLACE(a.getFils1());
 			Operande valeur = generer_EXP(a.getFils2());
+			Operande reg = Operande.opDirect(premierRegLibre());
 			
-			Inst inst = Inst.creation2(Operation.STORE, valeur, a.getFils1().getDecor().getDefn().getOperande());
-			Prog.ajouter(inst, "Affectation de "+valeur+" à "+a.getFils1().getChaine());
+			Prog.ajouterComment("Affectation, ligne "+a.getNumLigne());
+			Inst inst = Inst.creation2(Operation.LOAD, valeur, reg);
+			Prog.ajouter(inst);
+			inst = Inst.creation2(Operation.STORE, reg, a.getFils1().getDecor().getDefn().getOperande());
+			Prog.ajouter(inst);
 			
 			break ;
 		case Pour :
@@ -453,34 +467,36 @@ private static void generer_ECRITURE(Arbre a) {
 			else{
 				sens = sensParcours(a, 2);
 			}
-			
-			System.out.println("***************************0"+sens);
-			
-			if(sens){
+			Prog.ajouterComment("Ajout, ligne "+a.getNumLigne());
+			Inst inst;
+			if(sens == true){
 				Operande op1 = generer_EXP(a.getFils1());
-				System.out.println("****************************"+op1.getNature());
 				if(op1.getNature() != NatureOperande.OpDirect){
-					Inst inst = Inst.creation2(Operation.STORE, op1, Operande.opDirect(Registre.R0));
+					inst = Inst.creation2(Operation.LOAD, op1, Operande.opDirect(premierRegLibre()));
 					Prog.ajouter(inst);
-					op1 = Operande.opDirect(Registre.R0);
+					op1 = Operande.opDirect(premierRegLibre());
 				}
+				
 				Operande op2 = generer_EXP(a.getFils2());
-				Inst inst = Inst.creation2(Operation.ADD, op2, op1);
+				inst = Inst.creation2(Operation.ADD, op2, op1);
 				Prog.ajouter(inst, "Ajout de "+op1+" et "+op2);
+				printReg();
+				libererReg(op1.getRegistre().ordinal());
+				printReg();
+				
+				return Operande.opDirect(op1.getRegistre());
 			} else {
 				Operande op1 = generer_EXP(a.getFils2());
-				System.out.println("****************************"+op1.getNature());
-				if(op1.getNature() != NatureOperande.OpDirect){
-					Inst inst = Inst.creation2(Operation.STORE, op1, Operande.opDirect(Registre.R0));
-					Prog.ajouter(inst);
-					op1 = Operande.opDirect(Registre.R0);
-				}
+				inst = Inst.creation2(Operation.LOAD, op1, Operande.opDirect(Registre.R0));
+				Prog.ajouter(inst);
+				op1 = Operande.opDirect(Registre.R0);
+					
 				Operande op2 = generer_EXP(a.getFils1());
-				Inst inst = Inst.creation2(Operation.ADD, op2, op1);
-				Prog.ajouter(inst, "Ajout de "+op1+" et "+op2);
+				inst = Inst.creation2(Operation.ADD, op2, op1);
+				Prog.ajouter(inst);
+				return Operande.opDirect(op1.getRegistre());
 			}
 			
-			return Operande.opDirect(Registre.R0);
 		case Moins:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
@@ -533,8 +549,7 @@ private static void generer_ECRITURE(Arbre a) {
 		case Chaine:
 			return Operande.creationOpChaine(a.getChaine());
 		case Ident :
-			generer_IDENT_UTIL(a);
-			return a.getDecor().getDefn().getOperande();
+			return generer_IDENT_UTIL(a);
 	   }
 	return null;
 
