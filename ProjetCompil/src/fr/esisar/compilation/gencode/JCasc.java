@@ -33,7 +33,9 @@ public class JCasc {
 	 // Passe 3
          // Génération de code 
          // prog est le programme assembleur généré
+         arbre.afficher(1);
          Prog prog = Generation.coder(arbre); 
+         arbre.afficher(2);
 
          // Ecriture du programme généré dans le fichier assembleur
          String fichierAss = ArgsFichier.sortie(args);

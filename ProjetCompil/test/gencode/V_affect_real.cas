@@ -1,0 +1,9 @@
+-- VRAI, Verification de type / Affection d'un real sur une identifiant de type Type.Real
+
+program
+
+x,y:real;
+
+begin
+    x:=0.5+2.0;
+end.

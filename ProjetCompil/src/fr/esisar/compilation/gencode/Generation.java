@@ -2,35 +2,62 @@ package fr.esisar.compilation.gencode;
 
 import fr.esisar.compilation.global.src.*;
 import fr.esisar.compilation.global.src3.*;
-import fr.esisar.compilation.verif.ErreurInterneVerif;
 
 /**
  * Génération de code pour un programme JCas à partir d'un arbre décoré.
  */
 
 class Generation {
+	private static boolean[] tabRegAlloue = new boolean[16];
 	
-	/**
-    * Fonction qui regarde si tous les registres sont utilisés
-    * Si false on parcourt de gauche à droite
-    * Si true on parcourt de droite à gauche
+   /**
+	* Fonction qui regarde si il y a assez de registres libres pour exécuter une opération.
+	* @param a le noeud de l'arbre correspondant à l'opération
+	* @param nbRegNecessaires le nombre de registres nécessaires à l'opération
+	* @return true on parcourt de gauche à droite; false on parcourt de droite à gauche.
     */
-	private static boolean sensParcours(Arbre a){
-		boolean regFull = true;
-		for(Registre r: Registre.values()){
-			if(Operande.opDirect(r).getNature() == null){
-				regFull = false;
-				break;
+	private static boolean sensParcours(Arbre a, int nbRegNecessaires){
+		int count = 0;
+		for(boolean i: tabRegAlloue){
+			if(i == true){
+				count++;
 			}
 		}
-		return regFull;
+		return (count >= nbRegNecessaires);
 	}
+	
+	private static void initTabReg(){
+		for(boolean i: tabRegAlloue){
+			i = false;
+		}
+	}
+	
+	private static void allouerReg(int i){
+		tabRegAlloue[i] = true;
+	}
+	private static void libererReg(int i){
+		tabRegAlloue[i] = false;
+	}
+	
+	private static Registre premierRegLibre(){
+		int count = 0;
+		for(boolean i: tabRegAlloue){
+			if(i == true){
+				Registre[] tabReg = Registre.values();
+				return tabReg[count];
+			}
+			count++;
+		}
+		return null;
+	}
+	
    
    /**
     * Méthode principale de génération de code.
     * Génère du code pour l'arbre décoré a.
     */
    public static Prog coder(Arbre a) {
+	  
 	  Inst inst;
       Prog.ajouterGrosComment("Programme généré par JCasc");
 
@@ -50,14 +77,10 @@ class Generation {
       return Prog.instance(); 
    }
    
-   private static void generer_LIGNE(){
-	   Prog.ajouter(Inst.creation0(Operation.WNL));
-   }  
-   
    
    private static void generer_ECRITURE(Arbre a) {
 	   
-	   Inst inst ; 
+	   Inst inst;
 	   
 	   switch (a.getDecor().getType().getNature()) {
 	   
@@ -82,10 +105,7 @@ class Generation {
 	   }
    }
    
-   private static void generer_AFFECT(Arbre a){
-	   generer_PLACE(a.getFils1());
-	   generer_EXP(a.getFils2());
-   }
+
    
    private static int generer_LISTE_DECL(Arbre a){
 	   int count = 0;
@@ -103,7 +123,7 @@ class Generation {
 	   int count = 0;
 	   switch(a.getNoeud()){
 	   	case Decl :
-	   		count += generer_LISTE_IDENT(a.getFils1());
+	   		count += generer_LISTE_IDENT(a.getFils1(), 1);
 	   		return count;
 	   }
 	   return 0;
@@ -112,15 +132,13 @@ class Generation {
    /**************************************************************************
     * DECL
     **************************************************************************
-   private void generer_DECL(Arbre a) throws ErreurVerif {
+   private void generer_DECL(Arbre a)  {
 	   switch(a.getNoeud()){
 	   	case Decl :
 	   		generer_TYPE(a.getFils2());
 	   		a.getFils1().setDecor(new Decor(a.getFils2().getDecor().getType()));
 	   		generer_LISTE_IDENT(a.getFils1());
 	   		break ;
-	   default :
-		   throw new ErreurInterneVerif("Arbre incorrect dans generer_DECL");
 	   }
    }*/
 
@@ -128,42 +146,27 @@ class Generation {
    /**************************************************************************
     * LISTE_IDENT
     **************************************************************************/
-   private int generer_LISTE_IDENT(Arbre a) throws ErreurVerif {
+   private static int generer_LISTE_IDENT(Arbre a, int adresse)  {
 	   int count = 0;
 	   switch(a.getNoeud()){
-	   	case Vide : break ;
+	   	case Vide : return count;
 	   	case ListeIdent :
-	   		a.getFils1().setDecor(new Decor(a.getDecor().getType()));
-	   		a.getFils2().setDecor(new Decor(a.getDecor().getType()));
-	   		count += generer_LISTE_IDENT(a.getFils1());
- 	   		count += generer_IDENT_DECL(a.getFils2());
+	   		count += generer_LISTE_IDENT(a.getFils1(), adresse+1);
+ 	   		count += generer_IDENT_DECL(a.getFils2(), adresse);
  	   		return count;
-	   default :
-		   throw new ErreurInterneVerif("Arbre incorrect dans generer_LISTE_IDENT");
 	   }
+	   return count;
    }
 
    /**************************************************************************
     * IDENT_DECL
     **************************************************************************/
-   private int generer_IDENT_DECL(Arbre a) throws ErreurVerif {
+   private static int generer_IDENT_DECL(Arbre a, int adresse)  {
 	   switch(a.getNoeud()){
 	   	case Ident :
-	   		Defn d = env.chercher(a.getChaine());
-	   		if(d == null){
-	   			Defn defn = Defn.creationVar(a.getDecor().getType());
-	   			a.setDecor(new Decor(defn));
-	   			env.enrichir(a.getChaine(), defn);
-	   		}
-	   		else{
-	   			if(d.getGenre() != Genre.NonPredefini){
-	   				ErreurContext.ErreurIdentNomReserve.leverErreurContext(a.getChaine(), a.getNumLigne());
-	   			}
-	   			ErreurContext.ErreurVariableRedeclaree.leverErreurContext("Variable "+a.getChaine()+" déjà déclarée", a.getNumLigne());
-	   		}
+	   		a.getDecor().setInfoCode(adresse);
+	   		a.getDecor().getDefn().setOperande(Operande.creationOpIndirect(adresse, Registre.GB));
 	   		break;
-	   default :
-		   throw new ErreurInterneVerif("Arbre incorrect dans generer_IDENT_DECL");
 	   }
 	   return 1;
    }
@@ -173,37 +176,18 @@ class Generation {
    /**************************************************************************
     * IDENT_UTIL
     **************************************************************************/
-   private void generer_IDENT_UTIL(Arbre a) throws ErreurVerif {
-	   switch(a.getNoeud()){
-	   	case Ident :
-	   		Defn d;
-	   		if((d = env.chercher(a.getChaine())) != null){
-	   			a.setDecor(new Decor(d, d.getType()));
-		    }
-		    else{
-			   ErreurContext.ErreurVariableNonDeclaree.leverErreurContext("Variable "+a.getChaine()+" non déclarée", a.getNumLigne());
-		    }
-	   		break;
-	   default :
-		   throw new ErreurInterneVerif("Arbre incorrect dans generer_IDENT_UTIL");
-	   }
+   private static void generer_IDENT_UTIL(Arbre a)  {
+	   Inst inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), Operande.opDirect(Registre.R0));
+	   Prog.ajouter(inst);
    }
 
    /**************************************************************************
     * TYPE
     **************************************************************************/
-   private void generer_TYPE(Arbre a) throws ErreurVerif {
+   private static void generer_TYPE(Arbre a)  {
 	   switch(a.getNoeud()){
 	   	case Ident : 
-	   		Defn d = env.chercher(a.getChaine());
-	   		if(d != null){
-		   		Decor dec = new Decor(d, d.getType());
-		   		a.setDecor(dec);
-	   		}
-	   		else{
-	   			ErreurContext.ErreurTypeIndefini.leverErreurContext(a.getChaine(), a.getNumLigne());
-	   		}
-	   		break ;
+	   		
 	   	case Intervalle :
 		    generer_EXP_CONST(a.getFils1());
 		    generer_EXP_CONST(a.getFils2());
@@ -214,8 +198,6 @@ class Generation {
 	   		generer_TYPE(a.getFils2());
 	   		a.setDecor(new Decor(Type.creationArray(a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType())));
 	   		break ;
-	   default :
-		   throw new ErreurInterneVerif("Arbre incorrect dans generer_TYPE");
 	   }
    }
 
@@ -223,15 +205,13 @@ class Generation {
    /**************************************************************************
     * TYPE_INTERVALLE
     **************************************************************************/
-   private void generer_TYPE_INTERVALLE(Arbre a) throws ErreurVerif {
+   private static void generer_TYPE_INTERVALLE(Arbre a)  {
 	   switch(a.getNoeud()){
 	   	case Intervalle :
 		   generer_EXP_CONST(a.getFils1());
 		   generer_EXP_CONST(a.getFils2());
 		   a.setDecor(new Decor(Type.creationInterval(a.getFils1().getDecor().getDefn().getValeurInteger(), a.getFils2().getDecor().getDefn().getValeurInteger())));
 		   break ;
-	   default :
-		   throw new ErreurInterneVerif("Arbre incorrect dans generer_TYPE_INTERVALLE");
 	   }
    }
 
@@ -239,8 +219,8 @@ class Generation {
    /**************************************************************************
     * EXP_CONST
     **************************************************************************/
-   private void generer_EXP_CONST(Arbre a) throws ErreurVerif {
-	   ResultatUnaireCompatible reg_un;
+   private static void generer_EXP_CONST(Arbre a)  {
+	   
 	   switch(a.getNoeud()){
 	   	case Ident :
 	   		generer_IDENT_UTIL(a);
@@ -250,60 +230,42 @@ class Generation {
 		   break ;
 	   	case PlusUnaire :
 	   		generer_EXP_CONST(a.getFils1());
-			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
-			if(reg_un.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			a.setDecor(new Decor(Defn.creationConstInteger(+a.getFils1().getEntier()), Type.Integer));
+			
 	   		break ;
 	   	case MoinsUnaire :
 	   		generer_EXP_CONST(a.getFils1());
-	   		reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
-			if(reg_un.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			a.setDecor(new Decor(Defn.creationConstInteger(-a.getFils1().getEntier()), Type.Integer));
+	   		
 	   		break;
-	   default :
-		   throw new ErreurInterneVerif("Arbre incorrect dans generer_EXP_CONST");
 	   }
    }
 
    /**************************************************************************
     * LISTE_INST
     **************************************************************************/
-   private void generer_LISTE_INST(Arbre a) throws ErreurVerif {
+   private static void generer_LISTE_INST(Arbre a)  {
 	   switch (a.getNoeud()){
 		case Vide : break ;
 		case ListeInst:
 		  generer_LISTE_INST(a.getFils1());
 	      generer_INST(a.getFils2());
 	      break ;
-		default :
-			throw new ErreurInterneVerif("Arbre incorrect dans generer_LISTE_INST");
 	}
    }
 
    /**************************************************************************
     * INST
     **************************************************************************/
-   private void generer_INST(Arbre a) throws ErreurVerif {
+   private static void generer_INST(Arbre a)  {
 	   switch (a.getNoeud()){
 		case Nop :
 			break ;
 		case Affect:
 			generer_PLACE(a.getFils1());
-			generer_EXP(a.getFils2());
-			ResultatAffectCompatible reg_aff = ReglesTypage.affectCompatible(a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_aff.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_aff.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
+			Operande valeur = generer_EXP(a.getFils2());
+			
+			Inst inst = Inst.creation2(Operation.STORE, valeur, a.getFils1().getDecor().getDefn().getOperande());
+			Prog.ajouter(inst, "Affectation de "+valeur+" à "+a.getFils1().getChaine());
+			
 			break ;
 		case Pour :
 			generer_PAS(a.getFils1());
@@ -312,31 +274,23 @@ class Generation {
 		case TantQue:
 			generer_EXP(a.getFils1());
 			generer_LISTE_INST(a.getFils2());
-			if(a.getFils1().getDecor().getType().getNature() != NatureType.Boolean){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
+			
 			break ;
 		case Si :
 			generer_EXP(a.getFils1());
 			generer_LISTE_INST(a.getFils2());
 			generer_LISTE_INST(a.getFils3());
-			if(a.getFils1().getDecor().getType().getNature() != NatureType.Boolean){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
+			
 			break ;
 		case Lecture:
-			generer_PLACE(a.getFils1());
-			if((a.getFils1().getDecor().getType() != Type.Real)&&(a.getFils1().getDecor().getType().getNature() != NatureType.Interval)){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
+			
 			break ;
 		case Ecriture :
-			generer_LISTE_EXP(a.getFils1());
+			generer_ECRITURE(a.getFils1());
 			break ;
 		case Ligne:
+			Prog.ajouter(Inst.creation0(Operation.WNL));
 			break ;
-		default :
-			throw new ErreurInterneVerif("Arbre incorrect dans generer_INST");
 	}
    }
 
@@ -344,46 +298,28 @@ class Generation {
    /**************************************************************************
     * PAS
     **************************************************************************/
-   private void generer_PAS(Arbre a) throws ErreurVerif {
+   private static void generer_PAS(Arbre a)  {
 	   switch (a.getNoeud()){
 		case Increment :
 			generer_IDENT_UTIL(a.getFils1());
 			generer_EXP(a.getFils2());
 			generer_EXP(a.getFils3());
-			if(a.getFils1().getDecor().getType().getNature() != NatureType.Interval){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération Pour : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			if(a.getFils2().getDecor().getType().getNature() != NatureType.Interval){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération Pour : Type "+ a.getFils2().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			if(a.getFils3().getDecor().getType().getNature() != NatureType.Interval){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération Pour : Type "+ a.getFils3().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
+			
 			break ;
 		case Decrement:
 			generer_IDENT_UTIL(a.getFils1());
 			generer_EXP(a.getFils2());
 			generer_EXP(a.getFils3());
-			if(a.getFils1().getDecor().getType().getNature() != NatureType.Interval){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération Pour : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			if(a.getFils2().getDecor().getType().getNature() != NatureType.Interval){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération Pour : Type "+ a.getFils2().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			if(a.getFils3().getDecor().getType().getNature() != NatureType.Interval){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération Pour : Type "+ a.getFils3().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
+			
 			break ;
-		default :
-			throw new ErreurInterneVerif("Arbre incorrect dans generer_PAS");
-	}
+	   }
    }
 
    /**************************************************************************
     * PLACE
     **************************************************************************/
-   private void generer_PLACE(Arbre a) throws ErreurVerif {
-	   ResultatBinaireCompatible reg_bin;
+   private static void generer_PLACE(Arbre a)  {
+	  
 	   switch (a.getNoeud()){
 		case Ident :
 			generer_IDENT_UTIL(a);
@@ -391,14 +327,9 @@ class Generation {
 		case Index:
 			generer_PLACE(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			a.setDecor(new Decor(reg_bin.getTypeRes()));
+			
+			
 			break ;
-		default :
-			throw new ErreurInterneVerif("Arbre incorrect dans generer_PLACE");
 	}
    }
 
@@ -406,19 +337,15 @@ class Generation {
    /**************************************************************************
     * LISTE_EXP
     **************************************************************************/
-   private void generer_LISTE_EXP(Arbre a) throws ErreurVerif {
+   private static void generer_LISTE_EXP(Arbre a)  {
 	   switch (a.getNoeud()){
 		case Vide :
 			break ;
 		case ListeExp:
 			generer_LISTE_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			if((a.getFils2().getDecor().getType() != Type.Real)&&(a.getFils2().getDecor().getType().getNature() != NatureType.Interval)&&(a.getFils2().getDecor().getType().getNature() != NatureType.String)){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération Ecriture : Type "+ a.getFils2().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
+			
 	      break ;
-		default :
-			throw new ErreurInterneVerif("Arbre incorrect dans generer_LISTE_EXP");
 	   }
    }
 
@@ -426,325 +353,143 @@ class Generation {
    /**************************************************************************
     * EXP
     **************************************************************************/
-   private void generer_EXP(Arbre a) throws ErreurVerif {
-	   ResultatBinaireCompatible reg_bin;
-	   ResultatUnaireCompatible reg_un;
+   private static Operande generer_EXP(Arbre a)  {
+	   
 	   Type type;
 	   switch (a.getNoeud()){
 		case Et :
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Ou:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Egal :
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case InfEgal:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case SupEgal :
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case NonEgal:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Inf :
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Sup:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Plus :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
+			boolean sens;
+			if((a.getFils1().getNoeud() == Noeud.Ident)||(a.getFils2().getNoeud() == Noeud.Ident)){
+				sens = sensParcours(a, 1);
 			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
+			else{
+				sens = sensParcours(a, 2);
 			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
+			
+			System.out.println("***************************0"+sens);
+			
+			if(sens){
+				Operande op1 = generer_EXP(a.getFils1());
+				System.out.println("****************************"+op1.getNature());
+				if(op1.getNature() != NatureOperande.OpDirect){
+					Inst inst = Inst.creation2(Operation.STORE, op1, Operande.opDirect(Registre.R0));
+					Prog.ajouter(inst);
+					op1 = Operande.opDirect(Registre.R0);
+				}
+				Operande op2 = generer_EXP(a.getFils2());
+				Inst inst = Inst.creation2(Operation.ADD, op2, op1);
+				Prog.ajouter(inst, "Ajout de "+op1+" et "+op2);
+			} else {
+				Operande op1 = generer_EXP(a.getFils2());
+				System.out.println("****************************"+op1.getNature());
+				if(op1.getNature() != NatureOperande.OpDirect){
+					Inst inst = Inst.creation2(Operation.STORE, op1, Operande.opDirect(Registre.R0));
+					Prog.ajouter(inst);
+					op1 = Operande.opDirect(Registre.R0);
+				}
+				Operande op2 = generer_EXP(a.getFils1());
+				Inst inst = Inst.creation2(Operation.ADD, op2, op1);
+				Prog.ajouter(inst, "Ajout de "+op1+" et "+op2);
 			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
-			break ;
+			
+			return Operande.opDirect(Registre.R0);
 		case Moins:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Mult :
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case DivReel:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			else if(reg_bin.getConv1() == true){
-				Arbre tmp;
-				tmp = a.getFils1();
-				a.setFils1(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils1().setDecor(new Decor(Type.Real));
-			}
-			else if(reg_bin.getConv2() == true){
-				Arbre tmp;
-				tmp = a.getFils2();
-				a.setFils2(Arbre.creation1(Noeud.Conversion, tmp, a.getNumLigne()));
-				a.getFils2().setDecor(new Decor(Type.Real));
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Reste :
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Quotient:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Types "+ a.getFils1().getDecor().getType().getNature().name()+" et "+ a.getFils2().getDecor().getType().getNature().name()+" incompatibles", a.getNumLigne());
-			}
-			type = reg_bin.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Index :
 			generer_PLACE(a.getFils1());
 			generer_EXP(a.getFils2());
-	   		reg_bin = ReglesTypage.binaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType());
-			if(reg_bin.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			a.setDecor(new Decor(reg_bin.getTypeRes()));
+	   		
 			break ;
 		case PlusUnaire:
 			generer_EXP(a.getFils1());
-			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
-			if(reg_un.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			type = reg_un.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case MoinsUnaire :
 			generer_EXP(a.getFils1());
-			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
-			if(reg_un.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			type = reg_un.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Non:
 			generer_EXP(a.getFils1());
-			reg_un = ReglesTypage.unaireCompatible(a.getNoeud(), a.getFils1().getDecor().getType());
-			if(reg_un.getOk() == false){
-				ErreurContext.ErreurTypageNonCompatible.leverErreurContext("Opération "+a.getNoeud().name()+" : Type "+ a.getFils1().getDecor().getType().getNature().name()+" incompatible", a.getNumLigne());
-			}
-			type = reg_un.getTypeRes();
-			a.setDecor(new Decor(type));
+			
 			break ;
 		case Conversion :
 			generer_EXP(a.getFils1());
 			break ;
 		case Entier:			
-			a.setDecor(new Decor(Defn.creationConstInteger(a.getEntier()), Type.Integer));
-			break ;
+			return Operande.creationOpEntier(a.getEntier());
 		case Reel :
-			a.setDecor(new Decor(Type.Real));
-			break ;
+			return Operande.creationOpReel(a.getReel());
 		case Chaine:
-			a.setDecor(new Decor(Type.String));
-			break ;
+			return Operande.creationOpChaine(a.getChaine());
 		case Ident :
 			generer_IDENT_UTIL(a);
-			break;
-		default :
-			throw new ErreurInterneVerif("Arbre incorrect dans generer_EXP");
+			return a.getDecor().getDefn().getOperande();
 	   }
+	return null;
+
    }
    
 }
