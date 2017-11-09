@@ -2,13 +2,7 @@ package fr.esisar.compilation.gencode;
 
 import fr.esisar.compilation.global.src.*;
 import fr.esisar.compilation.global.src3.*;
-import fr.esisar.compilation.verif.ErreurContext;
 import fr.esisar.compilation.verif.ErreurInterneVerif;
-import fr.esisar.compilation.verif.ErreurVerif;
-import fr.esisar.compilation.verif.ReglesTypage;
-import fr.esisar.compilation.verif.ResultatAffectCompatible;
-import fr.esisar.compilation.verif.ResultatBinaireCompatible;
-import fr.esisar.compilation.verif.ResultatUnaireCompatible;
 
 /**
  * Génération de code pour un programme JCas à partir d'un arbre décoré.
