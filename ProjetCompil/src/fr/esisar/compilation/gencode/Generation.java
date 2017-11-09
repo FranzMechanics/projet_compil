@@ -78,31 +78,79 @@ class Generation {
    }
    
    
-   private static void generer_ECRITURE(Arbre a) {
+private static void generer_ECRITURE(Arbre a) {
 	   
-	   Inst inst;
+	   Inst inst ;
+	   System.out.println(a.getNoeud());
+	   switch(a.getNoeud()){
+	   
+	   case Vide :
+		   break;
+		   
+	   case ListeExp :
+		   generer_ECRITURE(a.getFils1());
+		   generer_ECRITURE(a.getFils2());
+		   break ;
+		   
+	   case Entier :
+		   Prog.ajouter("Ecriture d'un entier, ligne "+ a.getNumLigne());
+		   inst = Inst.creation2(Operation.LOAD,Operande.creationOpEntier(a.getEntier()),Operande.R1);
+		   Prog.ajouter(inst);
+		   inst = Inst.creation0(Operation.WINT);
+		   Prog.ajouter(inst); 
+		   break ;
+		   
+	   case Reel :
+		   Prog.ajouter("Ecriture d'un réel");
+		   inst = Inst.creation2(Operation.LOAD,Operande.creationOpReel(a.getReel()),Operande.R1);
+		   Prog.ajouter(inst);
+		   inst = Inst.creation0(Operation.WFLOAT);
+		   Prog.ajouter(inst); 
+		   break ;
+		   
+	   case Chaine :
+		   Prog.ajouter("Ecriture d'une chaine de caractères");
+		   inst = Inst.creation1(Operation.WSTR,Operande.creationOpChaine(a.getChaine()));
+		   Prog.ajouter(inst);
+		   break ;
+		   
+	   case Ident : 
+		   Prog.ajouter("Ecriture d'un IDENT");
+		   generer_ECRITURE_IDENT(a);
+		   break ;
+		   
+	   default :
+		   break ; 
+	   
+	   }
+	   
+   }
+   
+   private static void generer_ECRITURE_IDENT(Arbre a) {
+	   Inst inst ;
 	   
 	   switch (a.getDecor().getType().getNature()) {
 	   
-	   case String : 
-		   inst = Inst.creation1(Operation.WSTR, Operande.creationOpChaine(a.getChaine()));
+	   case Interval:
+		   inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),Operande.R1);
 		   Prog.ajouter(inst);
-		   break ; 
-		   
-	   case Interval : 
-		   inst = Inst.creation0(Operation.WINT);
+		   inst = Inst.creation0(Operation.WINT); 
 		   Prog.ajouter(inst);
-		   break; 
+		   break ;
 		   
-	   case Real : 
-		   inst = Inst.creation0(Operation.WFLOAT);
+	   case Real :
+		   inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),Operande.R1);
 		   Prog.ajouter(inst);
-		   break ; 
+		   inst = Inst.creation0(Operation.WFLOAT); 
+		   Prog.ajouter(inst);
+		   break ;
 		   
+	
 	   default:
-		   break;
+			 break;
 		   
 	   }
+	   
    }
    
 
@@ -322,7 +370,7 @@ class Generation {
 	  
 	   switch (a.getNoeud()){
 		case Ident :
-			generer_IDENT_UTIL(a);
+			//generer_IDENT_UTIL(a);
 			break;
 		case Index:
 			generer_PLACE(a.getFils1());

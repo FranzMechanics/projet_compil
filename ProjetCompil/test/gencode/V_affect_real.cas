@@ -6,4 +6,5 @@ x,y:real;
 
 begin
     x:=0.5+2.0;
+    write("x=",x);
 end.
