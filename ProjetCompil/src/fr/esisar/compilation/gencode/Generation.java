@@ -2,6 +2,7 @@ package fr.esisar.compilation.gencode;
 
 import fr.esisar.compilation.global.src.*;
 import fr.esisar.compilation.global.src3.*;
+import fr.esisar.compilation.global.src3.ErreurOperande;
 
 /**
  * Génération de code pour un programme JCas à partir d'un arbre décoré.
@@ -9,6 +10,7 @@ import fr.esisar.compilation.global.src3.*;
 
 class Generation {
 	private static boolean[] tabRegAlloue = new boolean[16];
+	private static int variableTemp;
 	
    /**
 	* Fonction qui regarde si il y a assez de registres libres pour exécuter une opération.
@@ -19,17 +21,19 @@ class Generation {
 	private static boolean sensParcours(Arbre a, int nbRegNecessaires){
 		int count = 0;
 		for(boolean i: tabRegAlloue){
-			if(i == true){
+			if(i == false){
 				count++;
 			}
 		}
-		return (count < nbRegNecessaires);
+		return (count >= nbRegNecessaires);
 	}
 	
 	private static void printReg(){
 		int count = 0;
+		System.out.println("*********** Registres *************");
 		for(boolean i: tabRegAlloue){
 			System.out.println("R"+count+" : "+i);
+			count++;
 		}
 	}
 	
@@ -39,11 +43,17 @@ class Generation {
 		}
 	}
 	
-	private static void allouerReg(int i){
-		tabRegAlloue[i] = true;
+	private static void allouerReg(Operande op){
+		if(op.getNature() != NatureOperande.OpDirect){
+			throw new ErreurOperande(op.getNature()+"; Opérande à adressage direct attendue");
+		}
+		tabRegAlloue[op.getRegistre().ordinal()] = true;
 	}
-	private static void libererReg(int i){
-		tabRegAlloue[i] = false;
+	private static void libererReg(Operande op){
+		if(op.getNature() != NatureOperande.OpDirect){
+			throw new ErreurOperande(op.getNature()+"; Opérande à adressage direct attendue");
+		}
+		tabRegAlloue[op.getRegistre().ordinal()] = false;
 	}
 	
 	private static Registre premierRegLibre(){
@@ -51,7 +61,7 @@ class Generation {
 		for(boolean i: tabRegAlloue){
 			if(i == false){
 				Registre[] tabReg = Registre.values();
-				allouerReg(count);
+				allouerReg(Operande.opDirect(tabReg[count]));
 				return tabReg[count];
 			}
 			count++;
@@ -70,7 +80,8 @@ class Generation {
       Prog.ajouterGrosComment("Programme généré par JCasc");
 
       int nbVariables = generer_LISTE_DECL(a.getFils1());
-      Prog.ajouter(Inst.creation1(Operation.ADDSP, Operande.creationOpEntier(nbVariables)));
+      variableTemp = nbVariables +1;
+      Prog.ajouter(Inst.creation1(Operation.ADDSP, Operande.creationOpEntier(nbVariables+1)));
       
       generer_LISTE_INST(a.getFils2());
 
@@ -233,10 +244,7 @@ private static void generer_ECRITURE(Arbre a) {
     * IDENT_UTIL
     **************************************************************************/
    private static Operande generer_IDENT_UTIL(Arbre a)  {
-	   Operande op = Operande.opDirect(premierRegLibre());
-	   Inst inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), op);
-	   Prog.ajouter(inst);
-	   return op;
+	   return null;
    }
 
    /**************************************************************************
@@ -328,6 +336,7 @@ private static void generer_ECRITURE(Arbre a) {
 			inst = Inst.creation2(Operation.STORE, reg, a.getFils1().getDecor().getDefn().getOperande());
 			Prog.ajouter(inst);
 			
+			libererReg(reg);
 			break ;
 		case Pour :
 			generer_PAS(a.getFils1());
@@ -416,7 +425,7 @@ private static void generer_ECRITURE(Arbre a) {
     * EXP
     **************************************************************************/
    private static Operande generer_EXP(Arbre a)  {
-	   
+	   Inst inst;
 	   Type type;
 	   switch (a.getNoeud()){
 		case Et :
@@ -460,63 +469,20 @@ private static void generer_ECRITURE(Arbre a) {
 			
 			break ;
 		case Plus :
-			boolean sens;
-			if((a.getFils1().getNoeud() == Noeud.Ident)||(a.getFils2().getNoeud() == Noeud.Ident)){
-				sens = sensParcours(a, 1);
-			}
-			else{
-				sens = sensParcours(a, 2);
-			}
-			Prog.ajouterComment("Ajout, ligne "+a.getNumLigne());
-			Inst inst;
-			if(sens == true){
-				Operande op1 = generer_EXP(a.getFils1());
-				if(op1.getNature() != NatureOperande.OpDirect){
-					inst = Inst.creation2(Operation.LOAD, op1, Operande.opDirect(premierRegLibre()));
-					Prog.ajouter(inst);
-					op1 = Operande.opDirect(premierRegLibre());
-				}
-				
-				Operande op2 = generer_EXP(a.getFils2());
-				inst = Inst.creation2(Operation.ADD, op2, op1);
-				Prog.ajouter(inst, "Ajout de "+op1+" et "+op2);
-				printReg();
-				libererReg(op1.getRegistre().ordinal());
-				printReg();
-				
-				return Operande.opDirect(op1.getRegistre());
-			} else {
-				Operande op1 = generer_EXP(a.getFils2());
-				inst = Inst.creation2(Operation.LOAD, op1, Operande.opDirect(Registre.R0));
-				Prog.ajouter(inst);
-				op1 = Operande.opDirect(Registre.R0);
-					
-				Operande op2 = generer_EXP(a.getFils1());
-				inst = Inst.creation2(Operation.ADD, op2, op1);
-				Prog.ajouter(inst);
-				return Operande.opDirect(op1.getRegistre());
-			}
+			return operationArith(a, Operation.ADD, "Addition");
 			
 		case Moins:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+			return operationArith(a, Operation.SUB, "Soustraction");
 			
-			break ;
 		case Mult :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+			return operationArith(a, Operation.MUL, "Multiplication");
 			
-			break ;
 		case DivReel:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+			return operationArith(a, Operation.DIV, "Ajout");
 			
-			break ;
 		case Reste :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+			return operationArith(a, Operation.MOD, "Reste");
 			
-			break ;
 		case Quotient:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
@@ -549,10 +515,62 @@ private static void generer_ECRITURE(Arbre a) {
 		case Chaine:
 			return Operande.creationOpChaine(a.getChaine());
 		case Ident :
-			return generer_IDENT_UTIL(a);
+			Operande op = Operande.opDirect(premierRegLibre());
+			inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), op);
+			Prog.ajouter(inst);
+			return op;
 	   }
 	return null;
 
+   }
+   
+   private static Operande operationArith(Arbre a, Operation op, String comment){
+	   	boolean sens;
+	   	printReg();
+		if((a.getFils1().getNoeud() == Noeud.Ident)||(a.getFils2().getNoeud() == Noeud.Ident)){
+			sens = sensParcours(a, 1);
+		}
+		else{
+			sens = sensParcours(a, 2);
+		}
+		Prog.ajouterComment(comment+", ligne "+a.getNumLigne());
+		Inst inst;
+		if(sens == true){
+			Operande op1 = generer_EXP(a.getFils1());
+			if(op1.getNature() != NatureOperande.OpDirect){
+				Operande reg = Operande.opDirect(premierRegLibre());
+				Prog.ajouter(Inst.creation2(Operation.LOAD, op1, reg));
+				op1 = reg;
+			}
+			Operande op2 = generer_EXP(a.getFils2());
+			inst = Inst.creation2(op, op2, op1);
+			Prog.ajouter(inst, "gauche a droite");
+			
+			return Operande.opDirect(op1.getRegistre());
+		} else {
+			Operande op1 = generer_EXP(a.getFils2());
+			Operande op2 = Operande.opDirect(premierRegLibre());
+			
+			if(op1.getNature() != NatureOperande.OpDirect){
+				Operande reg = Operande.opDirect(premierRegLibre());
+				Prog.ajouter(Inst.creation2(Operation.LOAD, op1, reg));
+				op1 = reg;
+			}
+			
+			Operande temp = Operande.creationOpIndirect(variableTemp, Registre.GB);
+			Prog.ajouter(Inst.creation2(Operation.STORE, op1, temp), "droite a gauche");
+			
+			op1 = generer_EXP(a.getFils1());
+			
+			inst = Inst.creation2(Operation.LOAD, temp, op2);
+			Prog.ajouter(inst, "droite a gauche");
+
+			inst = Inst.creation2(op, op1, op2);
+			Prog.ajouter(inst, "droite a gauche");
+			
+			libererReg(op2);
+			return Operande.opDirect(op2.getRegistre());
+		}
    }
    
 }
