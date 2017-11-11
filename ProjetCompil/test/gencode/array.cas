@@ -1,0 +1,10 @@
+-- VRAI, affectation entre deux tableaux ayant les memes intervalles et le meme type
+
+program
+    tab: array[1..10] of integer;
+    tab2: array[1..10] of integer ;
+begin
+    tab[3] := 5;
+    tab2:=tab;
+    write(tab2[3]);
+end.

@@ -87,6 +87,7 @@ class Generation {
        */
       int nbVariables = generer_LISTE_DECL(a.getFils1());
       variableTemp = nbVariables;
+      Prog.ajouterComment("Allocation de l'espace mémoire");
       Prog.ajouter(Inst.creation1(Operation.ADDSP, Operande.creationOpEntier(nbVariables+1)));
       
       generer_LISTE_INST(a.getFils2());
@@ -94,6 +95,7 @@ class Generation {
 
       // Fin du programme
       // L'instruction "HALT"
+      Prog.ajouterComment("Fin du programme");
       inst = Inst.creation0(Operation.HALT);
       // On ajoute l'instruction à la fin du programme
       Prog.ajouter(inst);
@@ -103,7 +105,7 @@ class Generation {
    }
    
    
-private static void generer_ECRITURE(Arbre a) {
+   private static void generer_ECRITURE(Arbre a) {
 	   
 	   Inst inst ;
 	   //System.out.println(a.getNoeud());
@@ -144,27 +146,56 @@ private static void generer_ECRITURE(Arbre a) {
 		   generer_ECRITURE_IDENT(a);
 		   break ;
 		   
+	   case Index:
+		   Prog.ajouterComment("Ecriture de variable issue d'un tableau, ligne "+ a.getNumLigne());
+		   generer_ECRITURE_PLACE(a);
+		   
 	   default :
 		   break ; 
 	   
 	   }
 	   
    }
-   
-   private static void generer_ECRITURE_IDENT(Arbre a) {
+
+   private static void generer_ECRITURE_PLACE(Arbre a){
 	   Inst inst ;
-	   
+	   Operande op = generer_EXP(a);
 	   switch (a.getDecor().getType().getNature()) {
 	   
 	   case Interval:
-		   inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),Operande.R1);
+		   inst = Inst.creation2(Operation.LOAD, op, Operande.R1);
 		   Prog.ajouter(inst);
 		   inst = Inst.creation0(Operation.WINT); 
 		   Prog.ajouter(inst);
 		   break ;
 		   
 	   case Real :
-		   inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),Operande.R1);
+		   inst = Inst.creation2(Operation.LOAD, op, Operande.R1);
+		   Prog.ajouter(inst);
+		   inst = Inst.creation0(Operation.WFLOAT); 
+		   Prog.ajouter(inst);
+		   break ;
+		  
+	   default:
+			 break;
+		   
+	   }
+	   libererReg(Operande.opDirect(op.getRegistreBase()));
+   }
+   
+   private static void generer_ECRITURE_IDENT(Arbre a) {
+	   Inst inst ;
+	   switch (a.getDecor().getType().getNature()) {
+	   
+	   case Interval:
+		   inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(),Operande.R1);
+		   Prog.ajouter(inst);
+		   inst = Inst.creation0(Operation.WINT); 
+		   Prog.ajouter(inst);
+		   break ;
+		   
+	   case Real :
+		   inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(),Operande.R1);
 		   Prog.ajouter(inst);
 		   inst = Inst.creation0(Operation.WFLOAT); 
 		   Prog.ajouter(inst);
@@ -212,6 +243,11 @@ private static void generer_ECRITURE(Arbre a) {
 	   switch(a.getNoeud()){
 	   	case Decl :
 	   		count += generer_LISTE_IDENT(a.getFils1(), debut);
+	   		System.out.println("*************"+count+a.getFils1().getFils2().getChaine());
+	   		
+	   		count += generer_TYPE(a.getFils2());
+	   		System.out.println("*************"+count+a.getFils2());
+	  
 	   		return count;
 	   }
 	   return 0;
@@ -239,7 +275,12 @@ private static void generer_ECRITURE(Arbre a) {
 	   		 *  pour compenser le fait qu'on commence à compter à 0 et que les adresses
 	   		 *  en mémoire commencent à GB+1
 	   		 */
- 	   		count += generer_IDENT_DECL(a.getFils2(), adresse+1);
+	   		if(a.getDecor().getType().getNature() == NatureType.Array){
+	   			count += generer_IDENT_DECL_TAB(a.getFils2(), adresse+1);
+	   		}
+	   		else{
+	   			count += generer_IDENT_DECL(a.getFils2(), adresse+1);
+	   		}
  	   		return count;
 	   }
 	   return count;
@@ -265,6 +306,31 @@ private static void generer_ECRITURE(Arbre a) {
 	   }
 	   return 1;
    }
+   
+   /**
+    * Fonction qui déclare un identifiant de tableau.
+    * <p>
+    * Dans cette fonction on récupère l'adresse du tableau et on l'attribue à la variable.
+    * Ensuite on stocke l'adresse dans cette même variable : c'est là où le nom du tableau va pointer.
+    * @param a le noeud Ident correspondant au nom du tableau
+    * @param adresse l'adresse du tableau
+    * @return l'entier 1 pour compter le nom du tableau dans les variables trouvées
+    */
+   private static int generer_IDENT_DECL_TAB(Arbre a, int adresse)  {
+	   switch(a.getNoeud()){
+	   	case Ident :
+	   		a.getDecor().setInfoCode(adresse);
+	   		Prog.ajouterComment("Déclaration de tableau, ligne "+a.getNumLigne());
+	   		Operande reg = Operande.opDirect(premierRegLibre());
+	   		a.getDecor().getDefn().setOperande(Operande.creationOpIndirect(adresse, Registre.GB));
+	   		Prog.ajouter(Inst.creation2(Operation.LEA, Operande.creationOpIndirect(adresse, Registre.GB), reg));
+	   		Prog.ajouter(Inst.creation2(Operation.STORE, reg, Operande.creationOpIndirect(adresse, Registre.GB)));
+	   		
+	   		libererReg(reg);
+	   		break;
+	   }
+	   return 1;
+   }
 
 
 
@@ -278,59 +344,39 @@ private static void generer_ECRITURE(Arbre a) {
    /**************************************************************************
     * TYPE
     **************************************************************************/
-   private static void generer_TYPE(Arbre a)  {
+   private static int generer_TYPE(Arbre a)  {
 	   switch(a.getNoeud()){
 	   	case Ident : 
-	   		
+	   		a.getDecor().getType().setTaille(1);
+	   		break;
 	   	case Intervalle :
-		    generer_EXP_CONST(a.getFils1());
-		    generer_EXP_CONST(a.getFils2());
-			a.setDecor(new Decor(Type.creationInterval(a.getFils1().getDecor().getDefn().getValeurInteger(), a.getFils2().getDecor().getDefn().getValeurInteger())));
 		    break ;
 	   	case Tableau :
-	   		generer_TYPE_INTERVALLE(a.getFils1());
+	   		//System.out.println("*****************"+a.getDecor().getType());
+	   		
+	   		int taille = generer_TYPE_INTERVALLE(a.getFils1());
+	   		// Si la taille du tableau vaut, le tableau est vide.
+	   		if(taille == 0){
+	   			throw new ErreurOperande("Tableau de taille nulle");
+	   		}
 	   		generer_TYPE(a.getFils2());
-	   		a.setDecor(new Decor(Type.creationArray(a.getFils1().getDecor().getType(), a.getFils2().getDecor().getType())));
-	   		break ;
+	   		taille *= a.getFils2().getDecor().getDefn().getType().getTaille();
+	   		a.getDecor().getType().setTaille(taille);
+	   		return taille+1;
 	   }
+	   return 0;
    }
 
 
    /**************************************************************************
     * TYPE_INTERVALLE
     **************************************************************************/
-   private static void generer_TYPE_INTERVALLE(Arbre a)  {
+   private static int generer_TYPE_INTERVALLE(Arbre a)  {
 	   switch(a.getNoeud()){
 	   	case Intervalle :
-		   generer_EXP_CONST(a.getFils1());
-		   generer_EXP_CONST(a.getFils2());
-		   a.setDecor(new Decor(Type.creationInterval(a.getFils1().getDecor().getDefn().getValeurInteger(), a.getFils2().getDecor().getDefn().getValeurInteger())));
-		   break ;
+	   		return a.getDecor().getType().getBorneSup() - a.getDecor().getType().getBorneInf();
 	   }
-   }
-
-
-   /**************************************************************************
-    * EXP_CONST
-    **************************************************************************/
-   private static void generer_EXP_CONST(Arbre a)  {
-	   
-	   switch(a.getNoeud()){
-	   	case Ident :
-	   		generer_IDENT_UTIL(a);
-	   		break ;
-	   	case Entier :
-	   		a.setDecor(new Decor(Defn.creationConstInteger(a.getEntier()), Type.Integer));
-		   break ;
-	   	case PlusUnaire :
-	   		generer_EXP_CONST(a.getFils1());
-			
-	   		break ;
-	   	case MoinsUnaire :
-	   		generer_EXP_CONST(a.getFils1());
-	   		
-	   		break;
-	   }
+	   return 0;
    }
 
    /**************************************************************************
@@ -354,19 +400,42 @@ private static void generer_ECRITURE(Arbre a) {
 		case Nop :
 			break ;
 		case Affect:
-			Operande variable = generer_PLACE(a.getFils1());
-			Operande valeur = generer_EXP(a.getFils2());
-			Operande reg = Operande.opDirect(premierRegLibre());
-			
-			//System.out.println(variable+" ; "+valeur+" "+a.getFils2().getNoeud()+" ; "+reg+" ; ");
-			
 			Prog.ajouterComment("Affectation, ligne "+a.getNumLigne());
-			Inst inst = Inst.creation2(Operation.LOAD, valeur, reg);
-			Prog.ajouter(inst);
-			inst = Inst.creation2(Operation.STORE, reg, variable);
-			Prog.ajouter(inst);
+			Operande variable = generer_EXP(a.getFils1());
+			Operande valeur = generer_EXP(a.getFils2());
 			
-			libererReg(reg);
+			if(variable.getNature() == NatureOperande.OpDirect){
+				variable = Operande.creationOpIndirect(0, variable.getRegistre());
+			}
+			
+			if(valeur.getNature() != NatureOperande.OpDirect){
+				Operande reg = Operande.opDirect(premierRegLibre());
+				Inst inst = Inst.creation2(Operation.LOAD, valeur, reg);
+				Prog.ajouter(inst);
+				inst = Inst.creation2(Operation.STORE, reg, variable);
+				Prog.ajouter(inst);
+				libererReg(reg);
+			}
+			else{
+				Inst inst = Inst.creation2(Operation.STORE, valeur, variable);
+				Prog.ajouter(inst);
+			}
+			
+			// Si l'affectation se fait sur une valeur d'un tableau on libère le registre qui contient l'adresse de la variable.
+			if(variable.getNature() == NatureOperande.OpIndexe){
+				libererReg(Operande.opDirect(variable.getRegistreIndex()));
+				libererReg(Operande.opDirect(variable.getRegistreBase()));
+			}
+			if(variable.getNature() == NatureOperande.OpDirect){
+				libererReg(variable);
+			}
+			if(variable.getNature() == NatureOperande.OpIndirect){
+				libererReg(Operande.opDirect(variable.getRegistreBase()));
+			}
+			if(valeur.getNature() == NatureOperande.OpDirect){
+				libererReg(valeur);
+			}
+			
 			break ;
 		case Pour :
 			generer_PAS(a.getFils1());
@@ -426,12 +495,50 @@ private static void generer_ECRITURE(Arbre a) {
 			//System.out.println(a.getChaine()+" "+a.getDecor().getDefn().getOperande());
 			return a.getDecor().getDefn().getOperande();
 		case Index:
-			generer_PLACE(a.getFils1());
-			generer_EXP(a.getFils2());
+			Operande place = generer_PLACE(a.getFils1());
+			int deplacement = place.getDeplacement();
+			Registre regBase = place.getRegistreBase();
+			Operande op = generer_EXP_CONST(a.getFils2());
 			
-			
-			return null;
-	}
+			return Operande.creationOpIndexe(deplacement, regBase, op.getRegistre());
+		}
+		return null;
+   }
+   
+   /**
+    * Fonction qui retourne le registre contenant l'indice d'un tableau.
+    * <p>
+    * Cette fonction va récupérer la valeur de l'indice, ou de l'identifiant qui contient la valeur de l'indice
+    * et retourne une opérande à adressage direct contenant cette valeur.
+    * @param a le noeud correspondant à l'indice d'un tableau
+    * @return Operande de type opDirect qui contient la valeur de l'indice
+    */
+   private static Operande generer_EXP_CONST(Arbre a)  {
+	   Operande reg;
+	   switch(a.getNoeud()){
+	   	case Ident :
+	   		if(a.getDecor().getType() != Type.Integer){
+	   			throw new ErreurOperande("Index du tableau non entier");
+	   		}
+	   		Inst inst;
+	   		reg = Operande.opDirect(premierRegLibre());
+			inst = Inst.creation2(Operation.LOAD, Operande.creationOpEntier(a.getDecor().getDefn().getValeurInteger()), reg);
+			Prog.ajouter(inst);
+			return reg;
+	   	case Entier :
+	   		reg = Operande.opDirect(premierRegLibre());
+	   		Prog.ajouter(Inst.creation2(Operation.LOAD, Operande.creationOpEntier(a.getEntier()), reg),"Chargement de l'indice du tableau");
+	   		return reg;
+	   	case PlusUnaire :
+	   		reg = Operande.opDirect(premierRegLibre());
+	   		Prog.ajouter(Inst.creation2(Operation.LOAD, Operande.creationOpEntier(generer_EXP(a.getFils1()).getEntier()), reg),"Chargement de l'indice du tableau");
+	   		return reg;
+
+	   	case MoinsUnaire :
+	   		reg = Operande.opDirect(premierRegLibre());
+	   		Prog.ajouter(Inst.creation2(Operation.LOAD, Operande.creationOpEntier(-generer_EXP(a.getFils1()).getEntier()), reg),"Chargement de l'indice du tableau");
+	   		return reg;
+	   }
 	return null;
    }
 
@@ -519,11 +626,26 @@ private static void generer_ECRITURE(Arbre a) {
 			generer_EXP(a.getFils2());
 			
 			break ;
+			
+		/*
+		 * Ici on va charger en mémoire la valeur contenue dans l'adresse mémoire @tableau + indice.
+		 */
 		case Index :
-			generer_PLACE(a.getFils1());
-			generer_EXP(a.getFils2());
-	   		
-			break ;
+			Operande place = generer_PLACE(a.getFils1());
+			int deplacement = place.getDeplacement();
+			Registre regBase = place.getRegistreBase();
+			Operande reg = Operande.opDirect(premierRegLibre());
+			
+			// On récupère d'abord l'adresse vers laquelle pointe l'identifiant correspondant au tableau.
+			Prog.ajouter(Inst.creation2(Operation.LOAD, Operande.creationOpIndirect(deplacement, regBase), reg), "1.Chargement de la variable "+a.getFils1().getChaine());
+			// Ensuite on calcule l'indice qu'on veut aller chercher.
+			Operande op = generer_EXP_CONST(a.getFils2());
+			
+			/*
+			 * Enfin on retourne une adresse indexée au registre contenant l'adresse pointée par le tableau avec un 
+			 * déplacement correspondant à l'indice lu.
+			 */
+			return Operande.creationOpIndexe(0, reg.getRegistre(), op.getRegistre());
 		case PlusUnaire:
 			generer_EXP(a.getFils1());
 			
@@ -537,7 +659,7 @@ private static void generer_ECRITURE(Arbre a) {
 			
 			break ;
 		case Conversion :
-			Operande op = Operande.opDirect(premierRegLibre());
+			op = Operande.opDirect(premierRegLibre());
 			Prog.ajouter(Inst.creation2(Operation.FLOAT, generer_EXP(a.getFils1()), op));
 			return op;
 			
@@ -548,10 +670,15 @@ private static void generer_ECRITURE(Arbre a) {
 		case Chaine:
 			return Operande.creationOpChaine(a.getChaine());
 		case Ident :
-			op = Operande.opDirect(premierRegLibre());
-			inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), op);
-			Prog.ajouter(inst);
-			return op;
+			reg = Operande.opDirect(premierRegLibre());
+			/*if(a.getDecor().getType().getNature() == NatureType.Array){
+				inst = Inst.creation2(Operation.LEA, a.getDecor().getDefn().getOperande(), op);
+			}
+			else{*/
+				inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), reg);
+			//}
+			Prog.ajouter(inst, "2.Chargement de la variable "+a.getChaine());
+			return reg;
 	   }
 	return null;
 
