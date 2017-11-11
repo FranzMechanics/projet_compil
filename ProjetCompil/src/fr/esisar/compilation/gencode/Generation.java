@@ -30,9 +30,9 @@ class Generation {
 	
 	private static void printReg(){
 		int count = 0;
-		System.out.println("*********** Registres *************");
+//		System.out.println("*********** Registres *************");
 		for(boolean i: tabRegAlloue){
-			System.out.println("R"+count+" : "+i);
+//			System.out.println("R"+count+" : "+i);
 			count++;
 		}
 	}
@@ -72,6 +72,7 @@ class Generation {
    
    /**
     * Méthode principale de génération de code.
+    * <p>
     * Génère du code pour l'arbre décoré a.
     */
    public static Prog coder(Arbre a) {
@@ -79,8 +80,13 @@ class Generation {
 	  Inst inst;
       Prog.ajouterGrosComment("Programme généré par JCasc");
 
+      /*
+       * On va compter le nombre de variables.
+       * nbVariables contient le nombre de variables du programme + une qu'on va
+       * réserver comme variable temporaire.
+       */
       int nbVariables = generer_LISTE_DECL(a.getFils1());
-      variableTemp = nbVariables +1;
+      variableTemp = nbVariables;
       Prog.ajouter(Inst.creation1(Operation.ADDSP, Operande.creationOpEntier(nbVariables+1)));
       
       generer_LISTE_INST(a.getFils2());
@@ -100,7 +106,7 @@ class Generation {
 private static void generer_ECRITURE(Arbre a) {
 	   
 	   Inst inst ;
-	   System.out.println(a.getNoeud());
+	   //System.out.println(a.getNoeud());
 	   switch(a.getNoeud()){
 	   
 	   case Vide :
@@ -173,61 +179,83 @@ private static void generer_ECRITURE(Arbre a) {
    }
    
 
-   
+   /**
+    * Fonction qui génère le noeud ListeDecl.
+    * <p>
+    * La fonction appelle generer_DECL et instancie le comptage des variables du programme.
+    * @param a le noeud ListeDecl
+    * @return le nombre de variables trouvées dans le programme
+    */
    private static int generer_LISTE_DECL(Arbre a){
 	   int count = 0;
 	   switch (a.getNoeud()){
 		case Vide : break ;
 		case ListeDecl:
 			count += generer_LISTE_DECL(a.getFils1());
-			count += generer_DECL(a.getFils2());
+			count += generer_DECL(a.getFils2(), count);
 			return count;
 	   }
 	   return 0;
    }
    
-   private static int generer_DECL(Arbre a){
+   /**
+    * Fonction qui génère le noeud Decl.
+    * <p>
+    * La fonction appelle generer_LISTE_IDENT et lui passe en argument le nombre de variables
+    * qui ont déjà été trouvées dans le programme par la fonction generer_LISTE_DECL.
+    * @param a le noeud Decl
+    * @param debut le nombre de variables déjà trouvées
+    * @return le nombre de variables trouvées dans les fils de <b>a
+    */
+   private static int generer_DECL(Arbre a, int debut){
 	   int count = 0;
 	   switch(a.getNoeud()){
 	   	case Decl :
-	   		count += generer_LISTE_IDENT(a.getFils1(), 1);
+	   		count += generer_LISTE_IDENT(a.getFils1(), debut);
 	   		return count;
 	   }
 	   return 0;
    }   
-   
-   /**************************************************************************
-    * DECL
-    **************************************************************************
-   private void generer_DECL(Arbre a)  {
-	   switch(a.getNoeud()){
-	   	case Decl :
-	   		generer_TYPE(a.getFils2());
-	   		a.getFils1().setDecor(new Decor(a.getFils2().getDecor().getType()));
-	   		generer_LISTE_IDENT(a.getFils1());
-	   		break ;
-	   }
-   }*/
 
-
-   /**************************************************************************
-    * LISTE_IDENT
-    **************************************************************************/
+   /**
+    * Fonction qui génère le noeud ListeIdent.
+    * <p>
+    * Cette fonction incrémente le compteur de variables lorsqu'elle appelle generer_IDENT_DECL.
+    * Elle passe donc en argument <b>adresse</b>+1 lorsqu'elle s'appelle elle-même.
+    * @param a le noeud ListeIdent
+    * @param adresse l'adresse que l'on va attribuer à l'identifiant trouvé
+    * @return le nombre de variables trouvées dans les fils de <b>a
+    */
    private static int generer_LISTE_IDENT(Arbre a, int adresse)  {
 	   int count = 0;
 	   switch(a.getNoeud()){
 	   	case Vide : return count;
 	   	case ListeIdent :
+//	   		System.out.println("Decl "+a.getFils2().getChaine()+" "+adresse);
 	   		count += generer_LISTE_IDENT(a.getFils1(), adresse+1);
- 	   		count += generer_IDENT_DECL(a.getFils2(), adresse);
+	   		
+	   		/*
+	   		 *  On passe adresse+1 comme adresse à attribuer à la variable
+	   		 *  pour compenser le fait qu'on commence à compter à 0 et que les adresses
+	   		 *  en mémoire commencent à GB+1
+	   		 */
+ 	   		count += generer_IDENT_DECL(a.getFils2(), adresse+1);
  	   		return count;
 	   }
 	   return count;
    }
 
-   /**************************************************************************
-    * IDENT_DECL
-    **************************************************************************/
+   /**
+    * Fonction qui alloue une adresse mémoire à un identifiant lors de sa déclaration.
+    * <p>
+    * Cette fonction a pour but d'associer un identifiant à son adresse mémoire. On va donc 
+    * créer une opérande à adressage indirect avec déplacement décalée d'autant de mots que de 
+    * variables trouvées dans le programme par rapport au registre GB.
+    * @param a le noeud Ident
+    * @param adresse l'adresse que l'on va attribuer à l'identifiant trouvé
+    * @return l'entier 1 qui va incrémenter le compteur de variables du programme
+    * @see	Operande
+    */
    private static int generer_IDENT_DECL(Arbre a, int adresse)  {
 	   switch(a.getNoeud()){
 	   	case Ident :
@@ -326,14 +354,16 @@ private static void generer_ECRITURE(Arbre a) {
 		case Nop :
 			break ;
 		case Affect:
-			generer_PLACE(a.getFils1());
+			Operande variable = generer_PLACE(a.getFils1());
 			Operande valeur = generer_EXP(a.getFils2());
 			Operande reg = Operande.opDirect(premierRegLibre());
+			
+			//System.out.println(variable+" ; "+valeur+" "+a.getFils2().getNoeud()+" ; "+reg+" ; ");
 			
 			Prog.ajouterComment("Affectation, ligne "+a.getNumLigne());
 			Inst inst = Inst.creation2(Operation.LOAD, valeur, reg);
 			Prog.ajouter(inst);
-			inst = Inst.creation2(Operation.STORE, reg, a.getFils1().getDecor().getDefn().getOperande());
+			inst = Inst.creation2(Operation.STORE, reg, variable);
 			Prog.ajouter(inst);
 			
 			libererReg(reg);
@@ -389,19 +419,20 @@ private static void generer_ECRITURE(Arbre a) {
    /**************************************************************************
     * PLACE
     **************************************************************************/
-   private static void generer_PLACE(Arbre a)  {
+   private static Operande generer_PLACE(Arbre a)  {
 	  
 	   switch (a.getNoeud()){
 		case Ident :
-			//generer_IDENT_UTIL(a);
-			break;
+			//System.out.println(a.getChaine()+" "+a.getDecor().getDefn().getOperande());
+			return a.getDecor().getDefn().getOperande();
 		case Index:
 			generer_PLACE(a.getFils1());
 			generer_EXP(a.getFils2());
 			
 			
-			break ;
+			return null;
 	}
+	return null;
    }
 
 
@@ -478,7 +509,7 @@ private static void generer_ECRITURE(Arbre a) {
 			return operationArith(a, Operation.MUL, "Multiplication");
 			
 		case DivReel:
-			return operationArith(a, Operation.DIV, "Ajout");
+			return operationArith(a, Operation.DIV, "Division réelle");
 			
 		case Reste :
 			return operationArith(a, Operation.MOD, "Reste");
@@ -506,8 +537,10 @@ private static void generer_ECRITURE(Arbre a) {
 			
 			break ;
 		case Conversion :
-			generer_EXP(a.getFils1());
-			break ;
+			Operande op = Operande.opDirect(premierRegLibre());
+			Prog.ajouter(Inst.creation2(Operation.FLOAT, generer_EXP(a.getFils1()), op));
+			return op;
+			
 		case Entier:			
 			return Operande.creationOpEntier(a.getEntier());
 		case Reel :
@@ -515,7 +548,7 @@ private static void generer_ECRITURE(Arbre a) {
 		case Chaine:
 			return Operande.creationOpChaine(a.getChaine());
 		case Ident :
-			Operande op = Operande.opDirect(premierRegLibre());
+			op = Operande.opDirect(premierRegLibre());
 			inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), op);
 			Prog.ajouter(inst);
 			return op;
@@ -526,7 +559,7 @@ private static void generer_ECRITURE(Arbre a) {
    
    private static Operande operationArith(Arbre a, Operation op, String comment){
 	   	boolean sens;
-	   	printReg();
+	   	//printReg();
 		if((a.getFils1().getNoeud() == Noeud.Ident)||(a.getFils2().getNoeud() == Noeud.Ident)){
 			sens = sensParcours(a, 1);
 		}
@@ -543,6 +576,7 @@ private static void generer_ECRITURE(Arbre a) {
 				op1 = reg;
 			}
 			Operande op2 = generer_EXP(a.getFils2());
+//			System.out.println("Variable1:"+op1.getRegistre());
 			inst = Inst.creation2(op, op2, op1);
 			Prog.ajouter(inst, "gauche a droite");
 			
@@ -567,7 +601,7 @@ private static void generer_ECRITURE(Arbre a) {
 
 			inst = Inst.creation2(op, op1, op2);
 			Prog.ajouter(inst, "droite a gauche");
-			
+//			System.out.println("Variable2:"+op2.getRegistre());
 			libererReg(op2);
 			return Operande.opDirect(op2.getRegistre());
 		}
