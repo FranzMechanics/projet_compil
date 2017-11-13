@@ -710,10 +710,9 @@ class Generation {
 			return Operande.opDirect(op1.getRegistre());
 		} else {
 			Operande op1 = generer_EXP(a.getFils2());
-			Operande op2 = Operande.opDirect(premierRegLibre());
+			Operande reg = Operande.opDirect(premierRegLibre());
 			
 			if(op1.getNature() != NatureOperande.OpDirect){
-				Operande reg = Operande.opDirect(premierRegLibre());
 				Prog.ajouter(Inst.creation2(Operation.LOAD, op1, reg));
 				op1 = reg;
 			}
@@ -723,14 +722,13 @@ class Generation {
 			
 			op1 = generer_EXP(a.getFils1());
 			
-			inst = Inst.creation2(Operation.LOAD, temp, op2);
+			inst = Inst.creation2(Operation.LOAD, temp, reg);
 			Prog.ajouter(inst, "droite a gauche");
 
-			inst = Inst.creation2(op, op1, op2);
+			inst = Inst.creation2(op, op1, reg);
 			Prog.ajouter(inst, "droite a gauche");
 //			System.out.println("Variable2:"+op2.getRegistre());
-			libererReg(op2);
-			return Operande.opDirect(op2.getRegistre());
+			return Operande.opDirect(reg.getRegistre());
 		}
    }
    
