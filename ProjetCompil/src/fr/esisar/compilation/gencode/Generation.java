@@ -360,7 +360,7 @@ class Generation {
 	   			throw new ErreurOperande("Tableau de taille nulle");
 	   		}
 	   		generer_TYPE(a.getFils2());
-	   		taille *= a.getFils2().getDecor().getDefn().getType().getTaille();
+	   		taille *= a.getFils2().getDecor().getType().getTaille();
 	   		a.getDecor().getType().setTaille(taille);
 	   		return taille+1;
 	   }
@@ -374,7 +374,7 @@ class Generation {
    private static int generer_TYPE_INTERVALLE(Arbre a)  {
 	   switch(a.getNoeud()){
 	   	case Intervalle :
-	   		return a.getDecor().getType().getBorneSup() - a.getDecor().getType().getBorneInf();
+	   		return a.getDecor().getType().getBorneSup() - a.getDecor().getType().getBorneInf() +1;
 	   }
 	   return 0;
    }
