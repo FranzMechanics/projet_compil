@@ -1,0 +1,21 @@
+-- VRAI, Verification de type / Affection d'un real sur une identifiant de type Type.Real
+
+program
+
+x,y:integer;
+z:boolean;
+a:boolean;
+
+begin
+    y:=3;
+    x:=y*2;
+    --a:= false;
+    --z:= 3>2;
+    --z:= a and a;
+    write("x = ",x);
+    new_line;
+    write("y = ",y);
+    new_line;
+    write("z = ",z);
+    --write("a = ",a);
+end.

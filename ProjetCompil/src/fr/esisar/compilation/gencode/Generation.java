@@ -449,15 +449,17 @@ class Generation {
    
    private static void coder_COND(Arbre a,Boolean b,Etiq etq){
 	   Inst inst; 
+	   Operande reg1,reg2;
 	   
 	   switch (a.getNoeud()){
 		case Ident :
+			/*boolean*/
 			if ( a.getFils1().getDecor().getType().getNature() == NatureType.Boolean) {
 				if (a.getFils1().getDecor().getDefn().getValeurBoolean() == b ) {
 					Prog.ajouter(Inst.creation1(Operation.BRA,Operande.creationOpEtiq(etq)));
 				} 
 			}
-			
+			/*identificateur*/
 			else {
 				
 				if (b) {
@@ -517,53 +519,106 @@ class Generation {
 			
 			
 		case Egal :
-			Operande reg1 = Operande.opDirect(premierRegLibre()) ;
-			Operande reg2 = Operande.opDirect(premierRegLibre()) ;
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
 			if (b) {
-				Operande reg1 = Operande.opDirect(premierRegLibre()) ;
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BEQ, Operande.creationOpEtiq(etq)));
 			} else {
-			
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BNE, Operande.creationOpEtiq(etq)));
 			}
-			
+			libererReg(reg1);
+			libererReg(reg2);
 			break ;
 		case InfEgal:
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
 			if (b) {
-				
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BLE, Operande.creationOpEtiq(etq)));
 			} else {
-			
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
+			libererReg(reg2);
 			break ;
 		case SupEgal :
-
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
 			if (b) {
-				
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BGE, Operande.creationOpEtiq(etq)));
 			} else {
-			
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
+			libererReg(reg2);
 			break ;
 		case NonEgal:
-
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
 			if (b) {
-				
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BNE, Operande.creationOpEtiq(etq)));
 			} else {
-			
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BEQ, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
+			libererReg(reg2);
 			break ;
 		case Inf :
-
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
 			if (b) {
-				
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(etq)));
 			} else {
-			
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BGE, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
+			libererReg(reg2);
 			break ;
 		case Sup:
-
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
 			if (b) {
-				
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(etq)));
 			} else {
-			
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BLE, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
+			libererReg(reg2);
 			break ;
 	   }
 	   
@@ -679,47 +734,56 @@ class Generation {
 	   Inst inst;
 	   Type type;
 	   Operande op;
+	   Etiq etq;
 	   switch (a.getNoeud()){
-		/*case Et :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+		case Et :
+			
+			etq = Etiq.nouvelle("etiq_etq");
+			coder_COND(a, true, etq);
+			Prog.ajouter(etq);
 			
 			break ;
 		case Ou:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+			
 			
 			break ;
 		case Egal :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
 			
 			break ;
 		case InfEgal:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+
 			
 			break ;
 		case SupEgal :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+
 			
 			break ;
 		case NonEgal:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+
 			
 			break ;
 		case Inf :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+
 			
 			break ;
 		case Sup:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
+			/*etq = Etiq.nouvelle("etiq_etq");
+			coder_COND(a, true, etq);
+			Prog.ajouter(etq);
+			a:=true marche pas donc ajouter cas a affect
+			a:=3>2
+			si (3>2) alors
 			
-			break ;*/
+			
+			
+			
+			
+			*/
+			break ;
+			
+			
+			
+			
 		case Plus :
 			operationArith(a, Operation.ADD, "Addition", reg);
 			break;
