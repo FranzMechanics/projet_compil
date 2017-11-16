@@ -207,8 +207,41 @@ class Generation {
 			 break;
 		   
 	   }
+	  
+   }
+   
+   
+   
+   
+   
+   private static void generer_LECTURE(Arbre a) {
+	   
+	   Inst inst ;
+	   
+	   switch(a.getNoeud()) {
+	   
+	   case Entier :
+		   inst = Inst.creation0(Operation.RINT);
+		   Prog.ajouter(inst, "Attente d'un entier de la part de l'utilisateur");
+		   inst = Inst.creation2(Operation.STORE, Operande.opDirect(Registre.R1),a.getDecor().getDefn().getOperande());
+		   Prog.ajouter(inst);
+		   break;
+		   
+	   case Reel :
+		   inst = Inst.creation0(Operation.RFLOAT);
+		   Prog.ajouter(inst, "Attente d'un réel de la part de l'utilisateur");
+		   inst = Inst.creation2(Operation.STORE, Operande.opDirect(Registre.R1),a.getDecor().getDefn().getOperande());
+		   Prog.ajouter(inst);
+		   break ;
+		   
+	   default : 
+			break;
+	   }
 	   
    }
+   
+   
+
    
 
    /**
@@ -408,6 +441,135 @@ class Generation {
 	}
    }
 
+   
+
+   /**************************************************************************
+    * coder_COND
+    **************************************************************************/
+   
+   private static void coder_COND(Arbre a,Boolean b,Etiq etq){
+	   Inst inst; 
+	   
+	   switch (a.getNoeud()){
+		case Ident :
+			if ( a.getFils1().getDecor().getType().getNature() == NatureType.Boolean) {
+				if (a.getFils1().getDecor().getDefn().getValeurBoolean() == b ) {
+					Prog.ajouter(Inst.creation1(Operation.BRA,Operande.creationOpEtiq(etq)));
+				} 
+			}
+			
+			else {
+				
+				if (b) {
+					Operande reg = Operande.opDirect(premierRegLibre()) ;
+					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg);
+					Prog.ajouter(inst);
+					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg);
+					Prog.ajouter(inst);
+					inst = Inst.creation1(Operation.BNE,Operande.creationOpEtiq(etq));
+					Prog.ajouter(etq);
+				} else {
+					Operande reg = Operande.opDirect(premierRegLibre()) ;
+					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg);
+					Prog.ajouter(inst);
+					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg);
+					Prog.ajouter(inst);
+					inst = Inst.creation1(Operation.BEQ,Operande.creationOpEtiq(etq));
+					Prog.ajouter(etq);
+				}
+				
+			}
+			
+			
+			break; 
+		case Et :
+			
+			if (b){
+				Etiq etq_fin = Etiq.nouvelle("etiq_fin");
+				coder_COND(a.getFils1(),false,etq_fin);
+				coder_COND(a.getFils2(),true,etq);
+				Prog.ajouter(etq_fin);
+				
+			} else {
+				coder_COND(a.getFils1(),false,etq);
+				coder_COND(a.getFils2(),false,etq);
+				
+			}
+			
+			break ;
+			
+		case Ou:
+			
+			if (b){
+				coder_COND(a.getFils1(),true,etq);
+				coder_COND(a.getFils2(),true,etq);
+			} else {
+				Etiq etq_fin = Etiq.nouvelle("etiq_fin");
+				coder_COND(a.getFils1(),true,etq_fin);
+				coder_COND(a.getFils2(),false,etq);
+				Prog.ajouter(etq_fin);
+				
+			}
+			break ;
+		case Non :
+			coder_COND(a.getFils1(), !b ,etq);
+			break;
+			
+			
+		case Egal :
+			Operande reg1 = Operande.opDirect(premierRegLibre()) ;
+			Operande reg2 = Operande.opDirect(premierRegLibre()) ;
+			if (b) {
+				Operande reg1 = Operande.opDirect(premierRegLibre()) ;
+			} else {
+			
+			}
+			
+			break ;
+		case InfEgal:
+			if (b) {
+				
+			} else {
+			
+			}
+			break ;
+		case SupEgal :
+
+			if (b) {
+				
+			} else {
+			
+			}
+			break ;
+		case NonEgal:
+
+			if (b) {
+				
+			} else {
+			
+			}
+			break ;
+		case Inf :
+
+			if (b) {
+				
+			} else {
+			
+			}
+			break ;
+		case Sup:
+
+			if (b) {
+				
+			} else {
+			
+			}
+			break ;
+	   }
+	   
+   }
+
+   
 
    /**************************************************************************
     * PAS
