@@ -148,7 +148,25 @@ class Generation {
 		   
 	   case Index:
 		   Prog.ajouterComment("Ecriture de variable issue d'un tableau, ligne "+ a.getNumLigne());
-		   generer_ECRITURE_PLACE(a);
+		   Operande reg = Operande.opDirect(premierRegLibre());
+		   Operande op = generer_PLACE(a, reg);
+		   libererReg(reg);
+			
+		   inst = Inst.creation2(Operation.LOAD, op, Operande.R1);
+		   Prog.ajouter(inst);
+		   System.out.println(a.getDecor().getType().getNature());
+		   switch(a.getDecor().getType().getNature()){
+		   	case Interval:
+		   		inst = Inst.creation0(Operation.WINT); 
+				Prog.ajouter(inst);
+				break;
+		   	case Real:
+		   		inst = Inst.creation0(Operation.WFLOAT);
+				Prog.ajouter(inst);
+				break;
+		   }
+		   
+		   break ;
 		   
 	   default :
 		   break ; 
@@ -324,7 +342,7 @@ class Generation {
 	   	case Tableau :
 	   		//System.out.println("*****************"+a.getDecor().getType());
 	   		
-	   		int taille = generer_TYPE_INTERVALLE(a.getFils1());
+	   		int taille = calculerTailleTab(a.getFils1());
 	   		// Si la taille du tableau vaut, le tableau est vide.
 	   		if(taille == 0){
 	   			throw new ErreurOperande("Tableau de taille nulle");
@@ -341,12 +359,19 @@ class Generation {
    /**************************************************************************
     * TYPE_INTERVALLE
     **************************************************************************/
-   private static int generer_TYPE_INTERVALLE(Arbre a)  {
+   private static int calculerTailleTab(Arbre a)  {
 	   switch(a.getNoeud()){
 	   	case Intervalle :
 	   		return a.getDecor().getType().getBorneSup() - a.getDecor().getType().getBorneInf() +1;
+	   		
+	   	case Index:
+	   		System.out.println(a.getDecor().getType().getIndice());
+	   		return a.getDecor().getType().getIndice().getBorneSup() - a.getDecor().getType().getIndice().getBorneInf() +1;
+	   		
+	   	default:
+	   		//throw new ErreurType(a.getNoeud()+" : Noeud Intervalle attendu");
+	   		return 0;
 	   }
-	   return 0;
    }
 
    /**************************************************************************
@@ -373,7 +398,9 @@ class Generation {
 			Prog.ajouterComment("Affectation, ligne "+a.getNumLigne());
 			
 			Operande valeur = Operande.opDirect(premierRegLibre());
-			Operande variable = generer_PLACE(a.getFils1());
+			Operande reg = Operande.opDirect(premierRegLibre());
+			Operande variable = generer_PLACE(a.getFils1(), reg);
+			libererReg(reg);
 			generer_EXP(a.getFils2(), valeur);
 			
 			Inst inst = Inst.creation2(Operation.STORE, valeur, variable);
@@ -432,20 +459,32 @@ class Generation {
    /**************************************************************************
     * PLACE
     **************************************************************************/
-   private static Operande generer_PLACE(Arbre a)  {
-	  a.afficher(1);
+   private static Operande generer_PLACE(Arbre a, Operande reg)  {
 	   switch (a.getNoeud()){
 		case Ident :
 			System.out.println(a.getChaine()+" "+a.getDecor().getDefn().getOperande());
 			return a.getDecor().getDefn().getOperande();
 		case Index:
-			Operande place = generer_PLACE(a.getFils1());
-			a.getFils1().afficher(0);
+			
+			Operande reg2 = Operande.opDirect(premierRegLibre());
+		
+			Type cur = a.getDecor().getType();
+
+			int taille = cur.getTaille();
+			//System.out.println(a.getFils2().getEntier()+" "+taille);
+			generer_EXP(a.getFils2(), reg);
+			if(taille != 1){
+				Prog.ajouter(Inst.creation2(Operation.MUL, Operande.creationOpEntier(taille), reg));
+			}
+			
+			Operande place = generer_PLACE(a.getFils1(), reg2);
+			if(place.getNature() != NatureOperande.OpIndirect){
+				Prog.ajouter(Inst.creation2(Operation.ADD, reg2, reg));
+			}
 			int deplacement = place.getDeplacement();
 			Registre regBase = place.getRegistreBase();
 			
-			Operande reg = Operande.opDirect(premierRegLibre());
-			generer_EXP(a.getFils2(), reg);
+			libererReg(reg2);
 			libererReg(reg);
 			
 			return Operande.creationOpIndexe(deplacement, regBase, reg.getRegistre());
@@ -586,24 +625,26 @@ class Generation {
 			*/
 
 		case Index :
-			
 			generer_EXP(a.getFils2(), reg);
-			Operande place = generer_PLACE(a.getFils1());
-		
+			reg = Operande.opDirect(premierRegLibre());
+			System.out.println("c nul");
+			Operande place = generer_PLACE(a.getFils1(), reg);
+			libererReg(reg);
 			//return Operande.creationOpIndexe(0, place.getRegistreBase(), op.getRegistre());
 			break;
+			
 		case PlusUnaire:
 			generer_EXP(a.getFils1(), reg);
-			
 			break ;
+			
 		case MoinsUnaire :
 			generer_EXP(a.getFils1(), reg);
-			
 			break ;
+			
 		case Non:
 			generer_EXP(a.getFils1(), reg);
-			
 			break ;
+			
 		case Conversion :
 			op = Operande.opDirect(premierRegLibre());
 			generer_EXP(a.getFils1(), reg);
@@ -612,7 +653,7 @@ class Generation {
 			
 		case Entier:
 			op = Operande.creationOpEntier(a.getEntier());
-			Prog.ajouter(Inst.creation2(Operation.LOAD, op, reg));
+			Prog.ajouter(Inst.creation2(Operation.LOAD, op, reg), "Chargement entier");
 			break;
 			
 		case Reel :
@@ -629,7 +670,7 @@ class Generation {
 			inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), reg);
 			
 			Prog.ajouter(inst, "2.Chargement de la variable "+a.getChaine());
-			return ;
+			break;
 	   }
    }
    
