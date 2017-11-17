@@ -11,6 +11,7 @@ import fr.esisar.compilation.global.src3.ErreurOperande;
 class Generation {
 	private static boolean[] tabRegAlloue = new boolean[16];
 	private static int variableTemp;
+	private static boolean tab = false, interv = false;
 	
    /**
 	* Fonction qui regarde si il y a assez de registres libres pour exécuter une opération.
@@ -92,6 +93,7 @@ class Generation {
       
       generer_LISTE_INST(a.getFils2());
 
+      
 
       // Fin du programme
       // L'instruction "HALT"
@@ -99,6 +101,11 @@ class Generation {
       inst = Inst.creation0(Operation.HALT);
       // On ajoute l'instruction à la fin du programme
       Prog.ajouter(inst);
+      
+      // Débordements
+      Prog.ajouter(Etiq.lEtiq("debordement_tableau"));
+      Prog.ajouter(Inst.creation1(Operation.WSTR, Operande.creationOpChaine("Erreur lors de l'execution : debordement d'indice")));
+      Prog.ajouter(Inst.creation0(Operation.HALT));
 
       // On retourne le programme assembleur généré
       return Prog.instance(); 
@@ -154,7 +161,7 @@ class Generation {
 			
 		   inst = Inst.creation2(Operation.LOAD, op, Operande.R1);
 		   Prog.ajouter(inst);
-		   System.out.println(a.getDecor().getType().getNature());
+		   //System.out.println(a.getDecor().getType().getNature());
 		   switch(a.getDecor().getType().getNature()){
 		   	case Interval:
 		   		inst = Inst.creation0(Operation.WINT); 
@@ -262,10 +269,10 @@ class Generation {
 	   switch(a.getNoeud()){
 	   	case Decl :
 	   		count += generer_LISTE_IDENT(a.getFils1(), debut);
-	   		System.out.println("*************"+count+a.getFils1().getFils2().getChaine());
+	   		//System.out.println("*************"+count+a.getFils1().getFils2().getChaine());
 	   		
 	   		count += generer_TYPE(a.getFils2());
-	   		System.out.println("*************"+count+a.getFils2());
+	   		//System.out.println("*************"+count+a.getFils2());
 	  
 	   		return count;
 	   }
@@ -338,10 +345,11 @@ class Generation {
 	   		a.getDecor().getType().setTaille(1);
 	   		break;
 	   	case Intervalle :
+	   		interv = true;
 		    break ;
 	   	case Tableau :
 	   		//System.out.println("*****************"+a.getDecor().getType());
-	   		
+	   		tab = true;
 	   		int taille = calculerTailleTab(a.getFils1());
 	   		// Si la taille du tableau vaut, le tableau est vide.
 	   		if(taille == 0){
@@ -365,12 +373,41 @@ class Generation {
 	   		return a.getDecor().getType().getBorneSup() - a.getDecor().getType().getBorneInf() +1;
 	   		
 	   	case Index:
-	   		System.out.println(a.getDecor().getType().getIndice());
+	   		//System.out.println(a.getDecor().getType().getIndice());
 	   		return a.getDecor().getType().getIndice().getBorneSup() - a.getDecor().getType().getIndice().getBorneInf() +1;
 	   		
 	   	default:
 	   		//throw new ErreurType(a.getNoeud()+" : Noeud Intervalle attendu");
 	   		return 0;
+	   }
+   }
+   
+   /**
+    * Vérifie que l'indice est contenu dans l'intervalle fourni.
+    * @param a noeud contenant un intervalle
+    * @param indice valeur à vérifier
+    * @return true si il y a débordement ; false sinon
+    */
+   private static void checkDebordement(Arbre a, Operande indice)  {
+	   //System.out.println("***************************"+a.getNoeud());
+	   switch(a.getNoeud()){
+	    
+	   	case Intervalle :
+	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getBorneSup()), indice), "Verification indice superieur");
+	   		Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
+	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getBorneInf()), indice), "Verification indice inferieur");
+	   		Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
+	   		break;
+	   	
+	   	case Ident:
+	   	case Index:
+	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getIndice().getBorneSup()), indice), "Verification indice superieur");
+	   		Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
+	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getIndice().getBorneInf()), indice), "Verification indice inferieur");
+	   		Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
+	   		break;
+	   		
+	   	default:
 	   }
    }
 
@@ -462,7 +499,7 @@ class Generation {
    private static Operande generer_PLACE(Arbre a, Operande reg)  {
 	   switch (a.getNoeud()){
 		case Ident :
-			System.out.println(a.getChaine()+" "+a.getDecor().getDefn().getOperande());
+			//System.out.println(a.getChaine()+" "+a.getDecor().getDefn().getOperande());
 			return a.getDecor().getDefn().getOperande();
 		case Index:
 			
@@ -473,6 +510,9 @@ class Generation {
 			int taille = cur.getTaille();
 			//System.out.println(a.getFils2().getEntier()+" "+taille);
 			generer_EXP(a.getFils2(), reg);
+			
+			checkDebordement(a.getFils1(), reg);
+			
 			if(taille != 1){
 				Prog.ajouter(Inst.creation2(Operation.MUL, Operande.creationOpEntier(taille), reg));
 			}
@@ -627,7 +667,7 @@ class Generation {
 		case Index :
 			generer_EXP(a.getFils2(), reg);
 			reg = Operande.opDirect(premierRegLibre());
-			System.out.println("c nul");
+			
 			Operande place = generer_PLACE(a.getFils1(), reg);
 			libererReg(reg);
 			//return Operande.creationOpIndexe(0, place.getRegistreBase(), op.getRegistre());
