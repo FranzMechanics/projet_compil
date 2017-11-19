@@ -399,6 +399,7 @@ class Generation {
     * INST
     **************************************************************************/
    private static void generer_INST(Arbre a)  {
+	   Inst inst;
 	   switch (a.getNoeud()){
 		case Nop :
 			break ;
@@ -409,7 +410,7 @@ class Generation {
 			Operande variable = generer_PLACE(a.getFils1());
 			generer_EXP(a.getFils2(), valeur);
 			
-			Inst inst = Inst.creation2(Operation.STORE, valeur, variable);
+			inst = Inst.creation2(Operation.STORE, valeur, variable);
 			Prog.ajouter(inst);
 						
 			libererReg(valeur);
@@ -419,18 +420,35 @@ class Generation {
 			generer_LISTE_INST(a.getFils2());
 			break ;
 		case TantQue:
-			//generer_EXP(a.getFils1());
+			Etiq et1 = Etiq.nouvelle("tantQue");
+			Etiq et2 = Etiq.nouvelle("CondTantQue");
+			Prog.ajouter(Inst.creation1(Operation.BRA,Operande.creationOpEtiq(et2)));
+			
+			Prog.ajouter(et1);
 			generer_LISTE_INST(a.getFils2());
 			
+			Prog.ajouter(et2);
+			coder_COND(a.getFils1(),true,et1);
 			break ;
 		case Si :
 			//generer_EXP(a.getFils1());
+			Etiq et_fin = Etiq.nouvelle("etq_fin_si");
+			Etiq et_fin2 = Etiq.nouvelle("etq_fin_else");
+			
+			//On fait le test du i, si c'est faux on branche sur l'etiquette de fin
+			coder_COND(a.getFils1(),false,et_fin);
+			//Si c'est juste on fait les instruction
 			generer_LISTE_INST(a.getFils2());
+			inst = Inst.creation1(Operation.BRA,Operande.creationOpEtiq(et_fin2));
+			Prog.ajouter(inst);
+			
+			Prog.ajouter(et_fin);
 			generer_LISTE_INST(a.getFils3());
+			Prog.ajouter(et_fin2);
 			
 			break ;
 		case Lecture:
-			
+			generer_LECTURE(a.getFils1());
 			break ;
 		case Ecriture :
 			generer_ECRITURE(a.getFils1());
