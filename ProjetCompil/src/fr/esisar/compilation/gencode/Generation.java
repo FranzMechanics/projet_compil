@@ -395,6 +395,27 @@ class Generation {
 	}
    }
 
+   
+   
+   /*
+    * Generer_AFFECT
+    */
+   
+   
+   private static void generer_AFFECT(Arbre a)  {
+	   	Prog.ajouterComment("Affectation, ligne "+a.getNumLigne());
+		
+		Operande valeur = Operande.opDirect(premierRegLibre());
+		Operande variable = generer_PLACE(a.getFils1());
+		generer_EXP(a.getFils2(), valeur);
+		
+		Inst inst = Inst.creation2(Operation.STORE, valeur, variable);
+		Prog.ajouter(inst);
+					
+		libererReg(valeur);
+   }
+   
+   
    /**************************************************************************
     * INST
     **************************************************************************/
@@ -469,30 +490,33 @@ class Generation {
 	   Inst inst; 
 	   Operande reg1,reg2;
 	   
+	   
 	   switch (a.getNoeud()){
 		case Ident :
 			/*boolean*/
-			if ( a.getFils1().getDecor().getType().getNature() == NatureType.Boolean) {
-				if (a.getFils1().getDecor().getDefn().getValeurBoolean() == b ) {
-					Prog.ajouter(Inst.creation1(Operation.BRA,Operande.creationOpEtiq(etq)));
+			if ( a.getDecor().getType().getNature() == NatureType.Boolean) {
+				//System.out.println("\n\n"+a.getDecor().getDefn().natureToString()+"\n\n");
+				if (a.getDecor().getDefn().getValeurBoolean()== b ) {
+					inst = Inst.creation1(Operation.BRA,Operande.creationOpEtiq(etq));
+					Prog.ajouter(inst);
 				} 
 			}
 			/*identificateur*/
 			else {
 				
 				if (b) {
-					Operande reg = Operande.opDirect(premierRegLibre()) ;
-					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg);
+					reg1 = Operande.opDirect(premierRegLibre()) ;
+					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
 					Prog.ajouter(inst);
-					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg);
+					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
 					Prog.ajouter(inst);
 					inst = Inst.creation1(Operation.BNE,Operande.creationOpEtiq(etq));
 					Prog.ajouter(etq);
 				} else {
-					Operande reg = Operande.opDirect(premierRegLibre()) ;
-					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg);
+					reg1 = Operande.opDirect(premierRegLibre()) ;
+					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
 					Prog.ajouter(inst);
-					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg);
+					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
 					Prog.ajouter(inst);
 					inst = Inst.creation1(Operation.BEQ,Operande.creationOpEtiq(etq));
 					Prog.ajouter(etq);
@@ -648,8 +672,32 @@ class Generation {
     * PAS
     **************************************************************************/
    /*private static void generer_PAS(Arbre a)  {
+	   
+	   Operande reg ; 
+	   Inst inst ;
+	   
+		//affectation avant de faire la boucle
+		Operande valeur = Operande.opDirect(premierRegLibre());
+		Operande variable = generer_PLACE(a.getFils1());
+		generer_EXP(a.getFils2(), valeur);
+		inst = Inst.creation2(Operation.STORE, valeur, variable);
+		Prog.ajouter(inst);
+		libererReg(valeur);
+	   
 	   switch (a.getNoeud()){
-		case Increment :
+	   
+		case Increment : 
+			//On fait l'incrément, avec une étiquette incr
+			Etiq incr = Etiq.nouvelle("incr");
+			reg = Operande.opDirect(premierRegLibre());
+			inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(),reg);
+			Prog.ajouter(inst);
+			
+			inst = Inst.creation2(Operation.ADD,Operande.creationOpEntier(1),reg);
+			Prog.ajouter(inst);
+			
+			//coder_COND()
+			
 			generer_IDENT_UTIL(a.getFils1());
 			generer_EXP(a.getFils2());
 			generer_EXP(a.getFils3());
@@ -744,6 +792,34 @@ class Generation {
 	   }
    }
 
+   
+   
+
+   /**************************************************************************
+    * EXP_BOOL
+    **************************************************************************/
+   private static void generer_EXP_BOOL(Arbre a, Operande reg)  {
+	   Etiq etq_false = Etiq.nouvelle("etq_false");
+		Etiq etq_fin = Etiq.nouvelle("etq_fin");
+		Inst inst ; 
+		
+		coder_COND(a,false,etq_false);
+		
+		//SI LA CONDITION EST VRAIE
+		inst =Inst.creation2(Operation.LOAD,Operande.creationOpEntier(1),reg);
+		Prog.ajouter(inst);
+		inst = Inst.creation1(Operation.BRA, Operande.creationOpEtiq(etq_fin));
+		Prog.ajouter(inst);
+		//SI LA CONDITION EST FAUSSE
+		Prog.ajouter(etq_false);
+		inst = Inst.creation2(Operation.LOAD,Operande.creationOpEntier(0),reg); 
+		Prog.ajouter(inst);
+		
+		Prog.ajouter(etq_fin);
+		
+   }
+   
+   
 
    /**************************************************************************
     * EXP
@@ -755,48 +831,14 @@ class Generation {
 	   Etiq etq;
 	   switch (a.getNoeud()){
 		case Et :
-			
-			etq = Etiq.nouvelle("etiq_etq");
-			coder_COND(a, true, etq);
-			Prog.ajouter(etq);
-			
-			break ;
 		case Ou:
-			
-			
-			break ;
 		case Egal :
-			
-			break ;
 		case InfEgal:
-
-			
-			break ;
 		case SupEgal :
-
-			
-			break ;
 		case NonEgal:
-
-			
-			break ;
 		case Inf :
-
-			
-			break ;
 		case Sup:
-			/*etq = Etiq.nouvelle("etiq_etq");
-			coder_COND(a, true, etq);
-			Prog.ajouter(etq);
-			a:=true marche pas donc ajouter cas a affect
-			a:=3>2
-			si (3>2) alors
-			
-			
-			
-			
-			
-			*/
+			generer_EXP_BOOL(a, reg);
 			break ;
 			
 			
@@ -837,17 +879,11 @@ class Generation {
 			//return Operande.creationOpIndexe(0, place.getRegistreBase(), op.getRegistre());
 			break;
 		case PlusUnaire:
-			generer_EXP(a.getFils1(), reg);
-			
-			break ;
 		case MoinsUnaire :
-			generer_EXP(a.getFils1(), reg);
-			
-			break ;
 		case Non:
 			generer_EXP(a.getFils1(), reg);
-			
 			break ;
+			
 		case Conversion :
 			op = Operande.opDirect(premierRegLibre());
 			generer_EXP(a.getFils1(), reg);
