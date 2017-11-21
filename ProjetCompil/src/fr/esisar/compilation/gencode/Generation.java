@@ -106,6 +106,14 @@ class Generation {
       Prog.ajouter(Etiq.lEtiq("debordement_tableau"));
       Prog.ajouter(Inst.creation1(Operation.WSTR, Operande.creationOpChaine("Erreur lors de l'execution : debordement d'indice")));
       Prog.ajouter(Inst.creation0(Operation.HALT));
+      
+      Prog.ajouter(Etiq.lEtiq("debordement"));
+      Prog.ajouter(Inst.creation1(Operation.WSTR, Operande.creationOpChaine("Erreur lors de l'execution : debordement arithmetique")));
+      Prog.ajouter(Inst.creation0(Operation.HALT));
+      
+      Prog.ajouter(Etiq.lEtiq("erreur_lecture"));
+      Prog.ajouter(Inst.creation1(Operation.WSTR, Operande.creationOpChaine("Erreur lors de l'execution : lecture invalide")));
+      Prog.ajouter(Inst.creation0(Operation.HALT));
 
       // On retourne le programme assembleur généré
       return Prog.instance(); 
@@ -327,15 +335,7 @@ class Generation {
 	   }
 	   return 1;
    }
-   
-   /**************************************************************************
-    * IDENT_UTIL
-    **************************************************************************/
-   private static Operande generer_IDENT_UTIL(Arbre a)  {
-	   return null;
-   }
-
-  
+     
    /**************************************************************************
     * TYPE
     **************************************************************************/
@@ -371,7 +371,11 @@ class Generation {
 	   switch(a.getNoeud()){
 	   	case Intervalle :
 	   		return a.getDecor().getType().getBorneSup() - a.getDecor().getType().getBorneInf() +1;
-	   		
+	   	
+	   	case Ident:
+	   		if(a.getDecor().getType().getNature() != NatureType.Array){
+	   			return 0;
+	   		}
 	   	case Index:
 	   		//System.out.println(a.getDecor().getType().getIndice());
 	   		return a.getDecor().getType().getIndice().getBorneSup() - a.getDecor().getType().getIndice().getBorneInf() +1;
@@ -390,17 +394,16 @@ class Generation {
     */
    private static void checkDebordement(Arbre a, Operande indice)  {
 	   //System.out.println("***************************"+a.getNoeud());
-	   switch(a.getNoeud()){
+	   switch(a.getDecor().getType().getNature()){
 	    
-	   	case Intervalle :
+	    case Interval:
 	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getBorneSup()), indice), "Verification indice superieur");
-	   		Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
+	   		Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getBorneInf()), indice), "Verification indice inferieur");
-	   		Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
+	   		Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 	   		break;
 	   	
-	   	case Ident:
-	   	case Index:
+	    case Array:
 	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getIndice().getBorneSup()), indice), "Verification indice superieur");
 	   		Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
 	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getIndice().getBorneInf()), indice), "Verification indice inferieur");
@@ -408,6 +411,47 @@ class Generation {
 	   		break;
 	   		
 	   	default:
+	   }
+   }
+   
+   /**
+    * Fonction appelée lors de l'affectation d'un tableau à un autre.
+    * <p>
+    * Elle copie toutes les valeurs du premier tableau dans le deuxième.
+    * @param a le noeud Affect 
+    */
+   private static void affectTab(Arbre a){
+	   if(a.getNoeud() != Noeud.Affect){
+		   throw new ErreurInst("Operation invalide : Noeud Affect attendu");
+	   }
+	   if(a.getFils1().getDecor().getType().getNature() != NatureType.Array){
+		   throw new ErreurOperande("Operation invalide : tableau attendu en fils 1");
+	   }
+	   if(a.getFils2().getDecor().getType().getNature() != NatureType.Array){
+		   throw new ErreurOperande("Operation invalide : tableau attendu en fils 2");
+	   }
+	   if(a.getFils1().getNoeud() != Noeud.Ident){
+		   throw new ErreurOperande("Operation invalide : noeud Ident attendu en fils 1");
+	   }
+	   if(a.getFils2().getNoeud() != Noeud.Ident){
+		   throw new ErreurOperande("Operation invalide : noeud Ident attendu en fils 2");
+	   }
+	   
+	   int taille = calculerTailleTab(a.getFils1());
+	   Operande regRes = Operande.opDirect(premierRegLibre());
+	   Registre regIndex = premierRegLibre();
+	   Inst inst = null;
+	   
+	   Operande tab2 = a.getFils1().getDecor().getDefn().getOperande();
+	   Operande tab1 = a.getFils2().getDecor().getDefn().getOperande();
+	   
+	   for(int i=1; i<=taille; i++){
+		   inst = Inst.creation2(Operation.LOAD, Operande.creationOpEntier(i), Operande.opDirect(regIndex));
+		   Prog.ajouter(inst);
+		   inst = Inst.creation2(Operation.LOAD, Operande.creationOpIndexe(tab1.getDeplacement(), tab1.getRegistreBase(), regIndex), regRes);
+		   Prog.ajouter(inst);
+		   inst = Inst.creation2(Operation.STORE, regRes, Operande.creationOpIndexe(tab2.getDeplacement(), tab2.getRegistreBase(), regIndex));
+		   Prog.ajouter(inst);
 	   }
    }
 
@@ -433,17 +477,27 @@ class Generation {
 			break ;
 		case Affect:
 			Prog.ajouterComment("Affectation, ligne "+a.getNumLigne());
-			
-			Operande valeur = Operande.opDirect(premierRegLibre());
-			Operande reg = Operande.opDirect(premierRegLibre());
-			Operande variable = generer_PLACE(a.getFils1(), reg);
-			libererReg(reg);
-			generer_EXP(a.getFils2(), valeur);
-			
-			Inst inst = Inst.creation2(Operation.STORE, valeur, variable);
-			Prog.ajouter(inst);
 						
-			libererReg(valeur);
+			if((a.getFils1().getDecor().getType().getNature() == NatureType.Array) &&
+			   (a.getFils2().getDecor().getType().getNature() == NatureType.Array)){
+				affectTab(a);
+			}
+			else {
+				/*if((a.getFils1().getNoeud() == Noeud.Intervalle) || (a.getFils1().getNoeud() == Noeud.Entier)){
+					checkDebordement(a, Operande.creationOpEntier(a.getFils2().getEntier()));
+				}*/
+				
+				Operande valeur = Operande.opDirect(premierRegLibre());
+				Operande reg = Operande.opDirect(premierRegLibre());
+				Operande variable = generer_PLACE(a.getFils1(), reg);
+				libererReg(reg);
+				generer_EXP(a.getFils2(), valeur);
+				
+				Inst inst = Inst.creation2(Operation.STORE, valeur, variable);
+				Prog.ajouter(inst);
+							
+				libererReg(valeur);
+			}
 			break ;
 		case Pour :
 			//generer_PAS(a.getFils1());
@@ -461,7 +515,7 @@ class Generation {
 			
 			break ;
 		case Lecture:
-			
+			generer_LECTURE(a);
 			break ;
 		case Ecriture :
 			generer_ECRITURE(a.getFils1());
@@ -472,6 +526,38 @@ class Generation {
 	}
    }
 
+   private static void generer_LECTURE(Arbre a){
+	   	Inst inst;
+	   
+	   	Operande reg = Operande.opDirect(premierRegLibre());
+		Operande variable = generer_PLACE(a.getFils1(), reg);
+		libererReg(reg);
+		
+		Operande temp = Operande.creationOpIndirect(variableTemp, Registre.GB);
+		Prog.ajouter(Inst.creation2(Operation.STORE, Operande.opDirect(Registre.R1), temp));
+		
+		switch(a.getFils1().getDecor().getType().getNature()){
+			case Interval:
+				inst = Inst.creation0(Operation.RINT);
+				Prog.ajouter(inst); 
+				break;
+			
+			case Real:
+				inst = Inst.creation0(Operation.RFLOAT);
+				Prog.ajouter(inst); 
+				break;
+			
+			default:
+				Prog.ajouter(Inst.creation1(Operation.BRA, Operande.creationOpEtiq(Etiq.lEtiq("erreur_lecture"))));
+		}
+		Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("erreur_lecture"))));
+		
+		inst = Inst.creation2(Operation.STORE, Operande.opDirect(Registre.R1), variable);
+		Prog.ajouter(inst);
+		
+		inst = Inst.creation2(Operation.LOAD, temp, Operande.opDirect(Registre.R1));
+		Prog.ajouter(inst);
+   }
 
    /**************************************************************************
     * PAS
@@ -515,6 +601,7 @@ class Generation {
 			
 			if(taille != 1){
 				Prog.ajouter(Inst.creation2(Operation.MUL, Operande.creationOpEntier(taille), reg));
+				Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 			}
 			
 			Operande place = generer_PLACE(a.getFils1(), reg2);
@@ -639,6 +726,10 @@ class Generation {
 			break ;*/
 		case Plus :
 			operationArith(a, Operation.ADD, "Addition", reg);
+			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
+			/*if(a.getFils1().getDecor().getType() == Type.Integer){
+				checkDebordement(a.getFils1(), reg);
+			}*/
 			break;
 			
 		case Moins:
@@ -647,22 +738,28 @@ class Generation {
 			
 		case Mult :
 			operationArith(a, Operation.MUL, "Multiplication", reg);
+			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
+			if(a.getFils1().getDecor().getType() == Type.Integer){
+				checkDebordement(a.getFils1(), reg);
+			}
 			break;
 			
 		case DivReel:
 			operationArith(a, Operation.DIV, "Division réelle", reg);
+			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 			break;
 			
 		case Reste :
 			operationArith(a, Operation.MOD, "Reste", reg);
+			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 			break;
 			
-		/*case Quotient:
+		/*
+		case Quotient:
 			generer_EXP(a.getFils1());
 			generer_EXP(a.getFils2());
-			
-			break ;
-			*/
+			break;
+		*/
 
 		case Index :
 			generer_EXP(a.getFils2(), reg);
@@ -679,21 +776,32 @@ class Generation {
 			
 		case MoinsUnaire :
 			generer_EXP(a.getFils1(), reg);
+			Prog.ajouterComment("Moins unaire, ligne "+a.getNumLigne());
+			inst = Inst.creation2(Operation.OPP, reg, reg);
+			Prog.ajouter(inst);
 			break ;
 			
 		case Non:
 			generer_EXP(a.getFils1(), reg);
+			Prog.ajouterComment("Non, ligne "+a.getNumLigne());
+			
+			inst = Inst.creation2(Operation.CMP, Operande.creationOpEntier(0), reg);
+			Prog.ajouter(inst);
+			inst = Inst.creation1(Operation.SEQ, reg);
+			Prog.ajouter(inst);
 			break ;
 			
 		case Conversion :
-			op = Operande.opDirect(premierRegLibre());
+			//op = Operande.opDirect(premierRegLibre());
 			generer_EXP(a.getFils1(), reg);
-			Prog.ajouter(Inst.creation2(Operation.FLOAT, reg, op));
+			Prog.ajouter(Inst.creation2(Operation.FLOAT, reg, reg));
+			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 			break;
 			
 		case Entier:
 			op = Operande.creationOpEntier(a.getEntier());
 			Prog.ajouter(Inst.creation2(Operation.LOAD, op, reg), "Chargement entier");
+			checkDebordement(a, reg);
 			break;
 			
 		case Reel :
@@ -716,7 +824,7 @@ class Generation {
    
    private static void operationArith(Arbre a, Operation op, String comment, Operande reg){
 	   	boolean sens;
-	   	//printReg();
+	   	// Si on passe en argument de l'opération une variable, on aura besoin que d'un registre 
 		if((a.getFils1().getNoeud() == Noeud.Ident)||(a.getFils2().getNoeud() == Noeud.Ident)){
 			sens = sensParcours(a, 1);
 		}
@@ -745,6 +853,9 @@ class Generation {
 
 			inst = Inst.creation2(op, temp, reg);
 			Prog.ajouter(inst, "droite a gauche");
+			if(a.getFils1().getDecor().getType() == Type.Integer){
+				checkDebordement(a.getFils2(), Operande.creationOpEntier(a.getFils2().getEntier()));
+			}
 		}
    }
    
