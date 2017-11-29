@@ -12,7 +12,7 @@ class Generation {
 	private static boolean[] tabRegAlloue = new boolean[16];
 	private static int variableTemp;
 	private static boolean tab = false, interv = false;
-	
+
    /**
 	* Fonction qui regarde si il y a assez de registres libres pour exécuter une opération.
 	* @param a le noeud de l'arbre correspondant à l'opération
@@ -28,7 +28,7 @@ class Generation {
 		}
 		return (count >= nbRegNecessaires);
 	}
-	
+
 	private static void printReg(){
 		int count = 0;
 //		System.out.println("*********** Registres *************");
@@ -37,13 +37,13 @@ class Generation {
 			count++;
 		}
 	}
-	
+
 	private static void initTabReg(){
 		for(boolean i: tabRegAlloue){
 			i = false;
 		}
 	}
-	
+
 	private static void allouerReg(Operande op){
 		if(op.getNature() != NatureOperande.OpDirect){
 			throw new ErreurOperande(op.getNature()+"; Opérande à adressage direct attendue");
@@ -56,7 +56,7 @@ class Generation {
 		}
 		tabRegAlloue[reg.getRegistre().ordinal()] = false;
 	}
-	
+
 	private static Registre premierRegLibre(){
 		int count = 0;
 		for(boolean i: tabRegAlloue){
@@ -69,8 +69,8 @@ class Generation {
 		}
 		return null;
 	}
-	
-   
+
+
    /**
     * Méthode principale de génération de code.
     * <p>
@@ -90,10 +90,10 @@ class Generation {
       variableTemp = nbVariables;
       Prog.ajouterComment("Allocation de l'espace mémoire");
       Prog.ajouter(Inst.creation1(Operation.ADDSP, Operande.creationOpEntier(nbVariables+1)));
-      
+
       generer_LISTE_INST(a.getFils2());
 
-      
+
 
       // Fin du programme
       // L'instruction "HALT"
@@ -101,78 +101,78 @@ class Generation {
       inst = Inst.creation0(Operation.HALT);
       // On ajoute l'instruction à la fin du programme
       Prog.ajouter(inst);
-      
+
       // Débordements
       Prog.ajouter(Etiq.lEtiq("debordement_tableau"));
       Prog.ajouter(Inst.creation1(Operation.WSTR, Operande.creationOpChaine("Erreur lors de l'execution : debordement d'indice")));
       Prog.ajouter(Inst.creation0(Operation.HALT));
-      
+
       Prog.ajouter(Etiq.lEtiq("debordement"));
       Prog.ajouter(Inst.creation1(Operation.WSTR, Operande.creationOpChaine("Erreur lors de l'execution : debordement arithmetique")));
       Prog.ajouter(Inst.creation0(Operation.HALT));
-      
+
       Prog.ajouter(Etiq.lEtiq("erreur_lecture"));
       Prog.ajouter(Inst.creation1(Operation.WSTR, Operande.creationOpChaine("Erreur lors de l'execution : lecture invalide")));
       Prog.ajouter(Inst.creation0(Operation.HALT));
 
       // On retourne le programme assembleur généré
-      return Prog.instance(); 
+      return Prog.instance();
    }
-   
-   
+
+
    private static void generer_ECRITURE(Arbre a) {
-	   
+
 	   Inst inst ;
 	   //System.out.println(a.getNoeud());
 	   switch(a.getNoeud()){
-	   
+
 	   case Vide :
 		   break;
-		   
+
 	   case ListeExp :
 		   generer_ECRITURE(a.getFils1());
 		   generer_ECRITURE(a.getFils2());
 		   break ;
-		   
+
 	   case Entier :
 		   Prog.ajouterComment("Ecriture d'un entier, ligne "+ a.getNumLigne());
 		   inst = Inst.creation2(Operation.LOAD,Operande.creationOpEntier(a.getEntier()),Operande.R1);
 		   Prog.ajouter(inst);
 		   inst = Inst.creation0(Operation.WINT);
-		   Prog.ajouter(inst); 
+		   Prog.ajouter(inst);
 		   break ;
-		   
+
 	   case Reel :
 		   Prog.ajouterComment("Ecriture d'un réel, ligne "+ a.getNumLigne());
 		   inst = Inst.creation2(Operation.LOAD,Operande.creationOpReel(a.getReel()),Operande.R1);
 		   Prog.ajouter(inst);
 		   inst = Inst.creation0(Operation.WFLOAT);
-		   Prog.ajouter(inst); 
+		   Prog.ajouter(inst);
 		   break ;
-		   
+
 	   case Chaine :
 		   Prog.ajouterComment("Ecriture d'une chaîne, ligne "+ a.getNumLigne());
 		   inst = Inst.creation1(Operation.WSTR,Operande.creationOpChaine(a.getChaine()));
 		   Prog.ajouter(inst);
 		   break ;
-		   
-	   case Ident : 
+
+	   case Ident :
 		   Prog.ajouterComment("Ecriture de variable, ligne "+ a.getNumLigne());
 		   generer_ECRITURE_IDENT(a);
 		   break ;
-		   
+
 	   case Index:
 		   Prog.ajouterComment("Ecriture de variable issue d'un tableau, ligne "+ a.getNumLigne());
 		   Operande reg = Operande.opDirect(premierRegLibre());
 		   Operande op = generer_PLACE(a, reg);
 		   libererReg(reg);
-			
+
 		   inst = Inst.creation2(Operation.LOAD, op, Operande.R1);
 		   Prog.ajouter(inst);
 		   //System.out.println(a.getDecor().getType().getNature());
 		   switch(a.getDecor().getType().getNature()){
 		   	case Interval:
-		   		inst = Inst.creation0(Operation.WINT); 
+		   		inst = Inst.creation0(Operation.WINT);
 				Prog.ajouter(inst);
 				break;
 		   	case Real:
@@ -180,14 +180,14 @@ class Generation {
 				Prog.ajouter(inst);
 				break;
 		   }
-		   
+
 		   break ;
-		   
+
 	   default :
-		   break ; 
-	   
+		   break ;
+
 	   }
-	   
+
    }
 
    private static void generer_ECRITURE_PLACE(Arbre a){
@@ -195,54 +195,54 @@ class Generation {
 	   Operande reg = Operande.opDirect(premierRegLibre());
 	   generer_EXP(a, reg);
 	   switch (a.getDecor().getType().getNature()) {
-	   
+
 	   case Interval:
 		   inst = Inst.creation2(Operation.LOAD, reg, Operande.R1);
 		   Prog.ajouter(inst);
-		   inst = Inst.creation0(Operation.WINT); 
+		   inst = Inst.creation0(Operation.WINT);
 		   Prog.ajouter(inst);
 		   break ;
-		   
+
 	   case Real :
 		   inst = Inst.creation2(Operation.LOAD, reg, Operande.R1);
 		   Prog.ajouter(inst);
-		   inst = Inst.creation0(Operation.WFLOAT); 
+		   inst = Inst.creation0(Operation.WFLOAT);
 		   Prog.ajouter(inst);
 		   break ;
-		  
+
 	   default:
 			 break;
-		   
+
 	   }
 	   libererReg(reg);
    }
-   
+
    private static void generer_ECRITURE_IDENT(Arbre a) {
 	   Inst inst ;
 	   switch (a.getDecor().getType().getNature()) {
-	   
+
 	   case Interval:
 		   inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(),Operande.R1);
 		   Prog.ajouter(inst);
-		   inst = Inst.creation0(Operation.WINT); 
+		   inst = Inst.creation0(Operation.WINT);
 		   Prog.ajouter(inst);
 		   break ;
-		   
+
 	   case Real :
 		   inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(),Operande.R1);
 		   Prog.ajouter(inst);
-		   inst = Inst.creation0(Operation.WFLOAT); 
+		   inst = Inst.creation0(Operation.WFLOAT);
 		   Prog.ajouter(inst);
 		   break ;
-		   
-	
+
+
 	   default:
 			 break;
-		   
+
 	   }
-	   
+
    }
-   
+
 
    /**
     * Fonction qui génère le noeud ListeDecl.
@@ -262,7 +262,7 @@ class Generation {
 	   }
 	   return 0;
    }
-   
+
    /**
     * Fonction qui génère le noeud Decl.
     * <p>
@@ -278,14 +278,14 @@ class Generation {
 	   	case Decl :
 	   		count += generer_LISTE_IDENT(a.getFils1(), debut);
 	   		//System.out.println("*************"+count+a.getFils1().getFils2().getChaine());
-	   		
+
 	   		count += generer_TYPE(a.getFils2());
 	   		//System.out.println("*************"+count+a.getFils2());
-	  
+
 	   		return count;
 	   }
 	   return 0;
-   }   
+   }
 
    /**
     * Fonction qui génère le noeud ListeIdent.
@@ -303,7 +303,7 @@ class Generation {
 	   	case ListeIdent :
 //	   		System.out.println("Decl "+a.getFils2().getChaine()+" "+adresse);
 	   		count += generer_LISTE_IDENT(a.getFils1(), adresse+1);
-	   		
+
 	   		/*
 	   		 *  On passe adresse+1 comme adresse à attribuer à la variable
 	   		 *  pour compenser le fait qu'on commence à compter à 0 et que les adresses
@@ -318,8 +318,8 @@ class Generation {
    /**
     * Fonction qui alloue une adresse mémoire à un identifiant lors de sa déclaration.
     * <p>
-    * Cette fonction a pour but d'associer un identifiant à son adresse mémoire. On va donc 
-    * créer une opérande à adressage indirect avec déplacement décalée d'autant de mots que de 
+    * Cette fonction a pour but d'associer un identifiant à son adresse mémoire. On va donc
+    * créer une opérande à adressage indirect avec déplacement décalée d'autant de mots que de
     * variables trouvées dans le programme par rapport au registre GB.
     * @param a le noeud Ident
     * @param adresse l'adresse que l'on va attribuer à l'identifiant trouvé
@@ -335,13 +335,13 @@ class Generation {
 	   }
 	   return 1;
    }
-     
+
    /**************************************************************************
     * TYPE
     **************************************************************************/
    private static int generer_TYPE(Arbre a)  {
 	   switch(a.getNoeud()){
-	   	case Ident : 
+	   	case Ident :
 	   		a.getDecor().getType().setTaille(1);
 	   		break;
 	   	case Intervalle :
@@ -371,7 +371,7 @@ class Generation {
 	   switch(a.getNoeud()){
 	   	case Intervalle :
 	   		return a.getDecor().getType().getBorneSup() - a.getDecor().getType().getBorneInf() +1;
-	   	
+
 	   	case Ident:
 	   		if(a.getDecor().getType().getNature() != NatureType.Array){
 	   			return 0;
@@ -379,13 +379,13 @@ class Generation {
 	   	case Index:
 	   		//System.out.println(a.getDecor().getType().getIndice());
 	   		return a.getDecor().getType().getIndice().getBorneSup() - a.getDecor().getType().getIndice().getBorneInf() +1;
-	   		
+
 	   	default:
 	   		//throw new ErreurType(a.getNoeud()+" : Noeud Intervalle attendu");
 	   		return 0;
 	   }
    }
-   
+
    /**
     * Vérifie que l'indice est contenu dans l'intervalle fourni.
     * @param a noeud contenant un intervalle
@@ -395,30 +395,30 @@ class Generation {
    private static void checkDebordement(Arbre a, Operande indice)  {
 	   //System.out.println("***************************"+a.getNoeud());
 	   switch(a.getDecor().getType().getNature()){
-	    
+
 	    case Interval:
 	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getBorneSup()), indice), "Verification indice superieur");
 	   		Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getBorneInf()), indice), "Verification indice inferieur");
 	   		Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 	   		break;
-	   	
+
 	    case Array:
 	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getIndice().getBorneSup()), indice), "Verification indice superieur");
 	   		Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
 	   		Prog.ajouter(Inst.creation2(Operation.CMP, Operande.creationOpEntier(a.getDecor().getType().getIndice().getBorneInf()), indice), "Verification indice inferieur");
 	   		Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(Etiq.lEtiq("debordement_tableau"))));
 	   		break;
-	   		
+
 	   	default:
 	   }
    }
-   
+
    /**
     * Fonction appelée lors de l'affectation d'un tableau à un autre.
     * <p>
     * Elle copie toutes les valeurs du premier tableau dans le deuxième.
-    * @param a le noeud Affect 
+    * @param a le noeud Affect
     */
    private static void affectTab(Arbre a){
 	   if(a.getNoeud() != Noeud.Affect){
@@ -436,15 +436,15 @@ class Generation {
 	   if(a.getFils2().getNoeud() != Noeud.Ident){
 		   throw new ErreurOperande("Operation invalide : noeud Ident attendu en fils 2");
 	   }
-	   
+
 	   int taille = calculerTailleTab(a.getFils1());
 	   Operande regRes = Operande.opDirect(premierRegLibre());
 	   Registre regIndex = premierRegLibre();
 	   Inst inst = null;
-	   
+
 	   Operande tab2 = a.getFils1().getDecor().getDefn().getOperande();
 	   Operande tab1 = a.getFils2().getDecor().getDefn().getOperande();
-	   
+
 	   for(int i=1; i<=taille; i++){
 		   inst = Inst.creation2(Operation.LOAD, Operande.creationOpEntier(i), Operande.opDirect(regIndex));
 		   Prog.ajouter(inst);
@@ -453,6 +453,71 @@ class Generation {
 		   inst = Inst.creation2(Operation.STORE, regRes, Operande.creationOpIndexe(tab2.getDeplacement(), tab2.getRegistreBase(), regIndex));
 		   Prog.ajouter(inst);
 	   }
+   }
+   
+   /**************************************************************************
+    * LOOP_POUR
+    **************************************************************************/
+   private static void generer_FOR_LOOP(Arbre a)  {
+	   Inst inst ; 
+	   
+	   //On récupère le pas 
+	   int pas;
+	   Arbre b = a.getFils1() ;
+	   if (b.getNoeud() == Noeud.Increment){
+		   pas = 1 ;
+	   } else {
+		   pas = -1 ; 
+	   }
+	   
+	   Prog.ajouterComment("Boucle pour, ligne "+a.getNumLigne());
+	   
+	   //Affectation initiale 
+	   
+	   Prog.ajouterComment("Affectation initiale du pour, ligne "+a.getNumLigne());
+	   Operande valeur = Operande.opDirect(premierRegLibre());
+	   Operande variable = b.getFils1().getDecor().getDefn().getOperande() ;
+	   generer_EXP(b.getFils2(), valeur);
+		
+		inst = Inst.creation2(Operation.STORE, valeur, variable);
+		Prog.ajouter(inst);
+		
+	   
+	   //Etiquette début for
+	   Etiq etq_for = Etiq.nouvelle("etiq_for");
+	   Prog.ajouter(etq_for);
+	   
+	   //Instructions du for 
+	   generer_LISTE_INST(a.getFils2());
+	   
+	   //Incrément ou décrément 
+	   //Operande reg = Operande.opDirect(premierRegLibre());
+	   inst = Inst.creation2(Operation.LOAD,variable,valeur);
+	   Prog.ajouter(inst);
+	   
+	   if (pas == 1) {
+		   inst = Inst.creation2(Operation.ADD,Operande.creationOpEntier(1),valeur);
+	   } else {
+		   inst = Inst.creation2(Operation.SUB,Operande.creationOpEntier(1),valeur);
+	   }
+	   Prog.ajouter(inst);
+	   
+	   inst = Inst.creation2(Operation.STORE,valeur,variable);
+	   Prog.ajouter(inst);
+	   
+	   //On boucle ou on sort
+	   generer_EXP(b.getFils3(),valeur);
+	   inst = Inst.creation2(Operation.CMP,variable,valeur);
+	   Prog.ajouter(inst);
+	   
+	   if (pas == 1) {
+		   inst = Inst.creation1(Operation.BGE,Operande.creationOpEtiq(etq_for));
+	   } else {
+		   inst = Inst.creation1(Operation.BLE,Operande.creationOpEtiq(etq_for));
+	   }
+	   Prog.ajouter(inst);
+	   
+	   libererReg(valeur);
    }
 
    /**************************************************************************
@@ -477,42 +542,72 @@ class Generation {
 			break ;
 		case Affect:
 			Prog.ajouterComment("Affectation, ligne "+a.getNumLigne());
-						
+
 			if((a.getFils1().getDecor().getType().getNature() == NatureType.Array) &&
 			   (a.getFils2().getDecor().getType().getNature() == NatureType.Array)){
 				affectTab(a);
 			}
 			else {
-				/*if((a.getFils1().getNoeud() == Noeud.Intervalle) || (a.getFils1().getNoeud() == Noeud.Entier)){
-					checkDebordement(a, Operande.creationOpEntier(a.getFils2().getEntier()));
-				}*/
-				
+				Inst inst;
 				Operande valeur = Operande.opDirect(premierRegLibre());
+				Prog.ajouterComment("Affectation, ligne "+a.getNumLigne());
 				Operande reg = Operande.opDirect(premierRegLibre());
 				Operande variable = generer_PLACE(a.getFils1(), reg);
 				libererReg(reg);
+				if (a.getFils2().getNoeud() == Noeud.Ident && a.getFils2().getDecor().getType().getNature() == NatureType.Boolean){
+					if (a.getFils2().getChaine().equals("true")) {
+						inst = Inst.creation2(Operation.LOAD,Operande.creationOpEntier(1),valeur);
+						Prog.ajouter(inst);
+						inst = Inst.creation2(Operation.STORE,valeur,variable);
+						Prog.ajouter(inst);
+					} else {
+						inst = Inst.creation2(Operation.LOAD,Operande.creationOpEntier(0),valeur);
+						Prog.ajouter(inst);
+						inst = Inst.creation2(Operation.STORE,valeur,variable);
+						Prog.ajouter(inst);
+					}
+				} else {
+
 				generer_EXP(a.getFils2(), valeur);
-				
-				Inst inst = Inst.creation2(Operation.STORE, valeur, variable);
+
+				inst = Inst.creation2(Operation.STORE, valeur, variable);
 				Prog.ajouter(inst);
-							
+
+
+				}
 				libererReg(valeur);
 			}
 			break ;
 		case Pour :
-			//generer_PAS(a.getFils1());
-			generer_LISTE_INST(a.getFils2());
+			generer_FOR_LOOP(a);
 			break ;
 		case TantQue:
-			//generer_EXP(a.getFils1());
+			Etiq et1 = Etiq.nouvelle("tantQue");
+			Etiq et2 = Etiq.nouvelle("CondTantQue");
+			Prog.ajouter(Inst.creation1(Operation.BRA,Operande.creationOpEtiq(et2)));
+
+			Prog.ajouter(et1);
 			generer_LISTE_INST(a.getFils2());
-			
+
+			Prog.ajouter(et2);
+			coder_COND(a.getFils1(),true,et1);
 			break ;
 		case Si :
 			//generer_EXP(a.getFils1());
+			Etiq et_fin = Etiq.nouvelle("etq_fin_si");
+			Etiq et_fin2 = Etiq.nouvelle("etq_fin_else");
+
+			coder_COND(a.getFils1(),false,et_fin);
+			//Si c'est juste on fait les instruction
 			generer_LISTE_INST(a.getFils2());
+			Inst inst = Inst.creation1(Operation.BRA,Operande.creationOpEtiq(et_fin2));
+			Prog.ajouter(inst);
+
+			Prog.ajouter(et_fin);
+
 			generer_LISTE_INST(a.getFils3());
-			
+			Prog.ajouter(et_fin2);
+
 			break ;
 		case Lecture:
 			generer_LECTURE(a);
@@ -526,35 +621,229 @@ class Generation {
 	}
    }
 
+   /**************************************************************************
+    * coder_COND
+    **************************************************************************/
+
+   private static void coder_COND(Arbre a,Boolean b,Etiq etq){
+	   Inst inst;
+	   Operande reg1,reg2;
+
+
+	   switch (a.getNoeud()){
+		case Ident :
+			/*boolean*/
+			if ( a.getDecor().getType().getNature() == NatureType.Boolean && (a.getChaine().equals("true") || a.getChaine().equals("false"))) {
+
+				String bool ;
+				if (b){
+					bool = "true";
+				} else {
+					bool = "false";
+				}
+
+				System.out.println("ident bool" + a.getChaine());
+
+				if (a.getChaine().equals(bool)) {
+					System.out.println("\n\n\negal\n\n\n");
+					inst = Inst.creation1(Operation.BRA,Operande.creationOpEtiq(etq));
+					Prog.ajouter(inst);
+				} else { System.out.println("\n\n\nnon egal\n\n\n");}
+			}
+			/*identificateur*/
+			else {
+
+				if (b) {
+					reg1 = Operande.opDirect(premierRegLibre()) ;
+					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
+					Prog.ajouter(inst);
+					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
+					Prog.ajouter(inst);
+					inst = Inst.creation1(Operation.BNE,Operande.creationOpEtiq(etq));
+					Prog.ajouter(inst);
+				} else {
+					reg1 = Operande.opDirect(premierRegLibre()) ;
+					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
+					Prog.ajouter(inst);
+					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
+					Prog.ajouter(inst);
+					inst = Inst.creation1(Operation.BEQ,Operande.creationOpEtiq(etq));
+					Prog.ajouter(inst);
+				}
+
+			}
+
+
+			break;
+		case Et :
+
+			if (b){
+				Etiq etq_fin = Etiq.nouvelle("etiq_fin");
+				coder_COND(a.getFils1(),false,etq_fin);
+				coder_COND(a.getFils2(),true,etq);
+				Prog.ajouter(etq_fin);
+
+			} else {
+				coder_COND(a.getFils1(),false,etq);
+				coder_COND(a.getFils2(),false,etq);
+
+			}
+
+			break ;
+
+		case Ou:
+
+			if (b){
+				coder_COND(a.getFils1(),true,etq);
+				coder_COND(a.getFils2(),true,etq);
+			} else {
+				Etiq etq_fin = Etiq.nouvelle("etiq_fin");
+				coder_COND(a.getFils1(),true,etq_fin);
+				coder_COND(a.getFils2(),false,etq);
+				Prog.ajouter(etq_fin);
+
+			}
+			break ;
+		case Non :
+			coder_COND(a.getFils1(), !b ,etq);
+			break;
+
+
+		case Egal :
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
+			if (b) {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BEQ, Operande.creationOpEtiq(etq)));
+			} else {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BNE, Operande.creationOpEtiq(etq)));
+			}
+			libererReg(reg1);
+			libererReg(reg2);
+			break ;
+		case InfEgal:
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
+			if (b) {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BLE, Operande.creationOpEtiq(etq)));
+			} else {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(etq)));
+			}
+			libererReg(reg1);
+			libererReg(reg2);
+			break ;
+		case SupEgal :
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
+			if (b) {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BGE, Operande.creationOpEtiq(etq)));
+			} else {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(etq)));
+			}
+			libererReg(reg1);
+			libererReg(reg2);
+			break ;
+		case NonEgal:
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
+			if (b) {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BNE, Operande.creationOpEtiq(etq)));
+			} else {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BEQ, Operande.creationOpEtiq(etq)));
+			}
+			libererReg(reg1);
+			libererReg(reg2);
+			break ;
+		case Inf :
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
+			if (b) {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(etq)));
+			} else {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BGE, Operande.creationOpEtiq(etq)));
+			}
+			libererReg(reg1);
+			libererReg(reg2);
+			break ;
+		case Sup:
+			reg1 = Operande.opDirect(premierRegLibre()) ;
+			reg2 = Operande.opDirect(premierRegLibre()) ;
+			if (b) {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(etq)));
+			} else {
+				generer_EXP(a.getFils1(), reg1);
+				generer_EXP(a.getFils2(), reg2);
+				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				Prog.ajouter(Inst.creation1(Operation.BLE, Operande.creationOpEtiq(etq)));
+			}
+			libererReg(reg1);
+			libererReg(reg2);
+			break ;
+	   }
+
+   }
+
    private static void generer_LECTURE(Arbre a){
 	   	Inst inst;
-	   
+
 	   	Operande reg = Operande.opDirect(premierRegLibre());
 		Operande variable = generer_PLACE(a.getFils1(), reg);
 		libererReg(reg);
-		
+
 		Operande temp = Operande.creationOpIndirect(variableTemp, Registre.GB);
 		Prog.ajouter(Inst.creation2(Operation.STORE, Operande.opDirect(Registre.R1), temp));
-		
+
 		switch(a.getFils1().getDecor().getType().getNature()){
 			case Interval:
 				inst = Inst.creation0(Operation.RINT);
-				Prog.ajouter(inst); 
+				Prog.ajouter(inst);
 				break;
-			
+
 			case Real:
 				inst = Inst.creation0(Operation.RFLOAT);
-				Prog.ajouter(inst); 
+				Prog.ajouter(inst);
 				break;
-			
+
 			default:
 				Prog.ajouter(Inst.creation1(Operation.BRA, Operande.creationOpEtiq(Etiq.lEtiq("erreur_lecture"))));
 		}
 		Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("erreur_lecture"))));
-		
+
 		inst = Inst.creation2(Operation.STORE, Operande.opDirect(Registre.R1), variable);
 		Prog.ajouter(inst);
-		
+
 		inst = Inst.creation2(Operation.LOAD, temp, Operande.opDirect(Registre.R1));
 		Prog.ajouter(inst);
    }
@@ -568,13 +857,13 @@ class Generation {
 			generer_IDENT_UTIL(a.getFils1());
 			generer_EXP(a.getFils2());
 			generer_EXP(a.getFils3());
-			
+
 			break ;
 		case Decrement:
 			generer_IDENT_UTIL(a.getFils1());
 			generer_EXP(a.getFils2());
 			generer_EXP(a.getFils3());
-			
+
 			break ;
 	   }
    }*/
@@ -588,37 +877,37 @@ class Generation {
 			//System.out.println(a.getChaine()+" "+a.getDecor().getDefn().getOperande());
 			return a.getDecor().getDefn().getOperande();
 		case Index:
-			
+
 			Operande reg2 = Operande.opDirect(premierRegLibre());
-		
+
 			Type cur = a.getDecor().getType();
 
 			int taille = cur.getTaille();
 			//System.out.println(a.getFils2().getEntier()+" "+taille);
 			generer_EXP(a.getFils2(), reg);
-			
+
 			checkDebordement(a.getFils1(), reg);
-			
+
 			if(taille != 1){
 				Prog.ajouter(Inst.creation2(Operation.MUL, Operande.creationOpEntier(taille), reg));
 				Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 			}
-			
+
 			Operande place = generer_PLACE(a.getFils1(), reg2);
 			if(place.getNature() != NatureOperande.OpIndirect){
 				Prog.ajouter(Inst.creation2(Operation.ADD, reg2, reg));
 			}
 			int deplacement = place.getDeplacement();
 			Registre regBase = place.getRegistreBase();
-			
+
 			libererReg(reg2);
 			libererReg(reg);
-			
+
 			return Operande.creationOpIndexe(deplacement, regBase, reg.getRegistre());
 		}
 		return null;
    }
-   
+
    /**
     * Fonction qui retourne le registre contenant l'indice d'un tableau.
     * <p>
@@ -666,15 +955,38 @@ class Generation {
 			break ;
 		case ListeExp:
 			generer_LISTE_EXP(a.getFils1());
-			
+
 			Operande reg = Operande.opDirect(premierRegLibre());
 			generer_EXP(a.getFils2(), reg);
 			libererReg(reg);
-			
+
 	      break ;
 	   }
    }
 
+   /**************************************************************************
+	* EXP_BOOL
+	**************************************************************************/
+   private static void generer_EXP_BOOL(Arbre a, Operande reg)  {
+	   Etiq etq_false = Etiq.nouvelle("etq_false");
+	   Etiq etq_fin = Etiq.nouvelle("etq_fin");
+	   Inst inst ;
+
+	   coder_COND(a,false,etq_false);
+
+	   //SI LA CONDITION EST VRAIE
+	   inst =Inst.creation2(Operation.LOAD,Operande.creationOpEntier(1),reg);
+	   Prog.ajouter(inst);
+	   inst = Inst.creation1(Operation.BRA, Operande.creationOpEtiq(etq_fin));
+	   Prog.ajouter(inst);
+	   //SI LA CONDITION EST FAUSSE
+	   Prog.ajouter(etq_false);
+	   inst = Inst.creation2(Operation.LOAD,Operande.creationOpEntier(0),reg);
+	   Prog.ajouter(inst);
+
+	   Prog.ajouter(etq_fin);
+
+   }
 
    /**************************************************************************
     * EXP
@@ -684,46 +996,17 @@ class Generation {
 	   Type type;
 	   Operande op;
 	   switch (a.getNoeud()){
-		/*case Et :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			
-			break ;
-		case Ou:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			
-			break ;
-		case Egal :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			
-			break ;
-		case InfEgal:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			
-			break ;
-		case SupEgal :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			
-			break ;
-		case NonEgal:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			
-			break ;
-		case Inf :
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			
-			break ;
-		case Sup:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			
-			break ;*/
+		case Et :
+   		case Ou:
+   		case Egal :
+   		case InfEgal:
+   		case SupEgal :
+   		case NonEgal:
+   		case Inf :
+   		case Sup:
+   			generer_EXP_BOOL(a, reg);
+   			break ;
+
 		case Plus :
 			operationArith(a, Operation.ADD, "Addition", reg);
 			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
@@ -731,11 +1014,11 @@ class Generation {
 				checkDebordement(a.getFils1(), reg);
 			}*/
 			break;
-			
+
 		case Moins:
 			operationArith(a, Operation.SUB, "Soustraction", reg);
 			break;
-			
+
 		case Mult :
 			operationArith(a, Operation.MUL, "Multiplication", reg);
 			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
@@ -743,88 +1026,83 @@ class Generation {
 				checkDebordement(a.getFils1(), reg);
 			}
 			break;
-			
+
+		case Quotient:
 		case DivReel:
 			operationArith(a, Operation.DIV, "Division réelle", reg);
 			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 			break;
-			
+
 		case Reste :
 			operationArith(a, Operation.MOD, "Reste", reg);
 			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 			break;
-			
-		/*
-		case Quotient:
-			generer_EXP(a.getFils1());
-			generer_EXP(a.getFils2());
-			break;
-		*/
+
 
 		case Index :
 			generer_EXP(a.getFils2(), reg);
 			reg = Operande.opDirect(premierRegLibre());
-			
+
 			Operande place = generer_PLACE(a.getFils1(), reg);
 			libererReg(reg);
 			//return Operande.creationOpIndexe(0, place.getRegistreBase(), op.getRegistre());
 			break;
-			
+
 		case PlusUnaire:
 			generer_EXP(a.getFils1(), reg);
 			break ;
-			
+
 		case MoinsUnaire :
 			generer_EXP(a.getFils1(), reg);
 			Prog.ajouterComment("Moins unaire, ligne "+a.getNumLigne());
 			inst = Inst.creation2(Operation.OPP, reg, reg);
 			Prog.ajouter(inst);
 			break ;
-			
+
 		case Non:
 			generer_EXP(a.getFils1(), reg);
 			Prog.ajouterComment("Non, ligne "+a.getNumLigne());
-			
+
 			inst = Inst.creation2(Operation.CMP, Operande.creationOpEntier(0), reg);
 			Prog.ajouter(inst);
 			inst = Inst.creation1(Operation.SEQ, reg);
 			Prog.ajouter(inst);
 			break ;
-			
+
 		case Conversion :
 			//op = Operande.opDirect(premierRegLibre());
 			generer_EXP(a.getFils1(), reg);
 			Prog.ajouter(Inst.creation2(Operation.FLOAT, reg, reg));
 			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
 			break;
-			
+
 		case Entier:
 			op = Operande.creationOpEntier(a.getEntier());
 			Prog.ajouter(Inst.creation2(Operation.LOAD, op, reg), "Chargement entier");
 			checkDebordement(a, reg);
 			break;
-			
+
 		case Reel :
 			op = Operande.creationOpReel(a.getReel());
 			Prog.ajouter(Inst.creation2(Operation.LOAD, op, reg));
 			break;
-			
+
 		case Chaine:
 			op = Operande.creationOpChaine(a.getChaine());
 			Prog.ajouter(Inst.creation2(Operation.LOAD, op, reg));
 			break;
-			
+
 		case Ident :
 			inst = Inst.creation2(Operation.LOAD, a.getDecor().getDefn().getOperande(), reg);
-			
+
 			Prog.ajouter(inst, "2.Chargement de la variable "+a.getChaine());
 			break;
 	   }
    }
-   
+
    private static void operationArith(Arbre a, Operation op, String comment, Operande reg){
 	   	boolean sens;
-	   	// Si on passe en argument de l'opération une variable, on aura besoin que d'un registre 
+	   	// Si on passe en argument de l'opération une variable, on aura besoin que d'un registre
 		if((a.getFils1().getNoeud() == Noeud.Ident)||(a.getFils2().getNoeud() == Noeud.Ident)){
 			sens = sensParcours(a, 1);
 		}
@@ -835,20 +1113,20 @@ class Generation {
 		Inst inst;
 		if(sens == true){
 			generer_EXP(a.getFils1(), reg);
-			
+
 			Operande reg2 = Operande.opDirect(premierRegLibre());
 			generer_EXP(a.getFils2(), reg2);
 
 			inst = Inst.creation2(op, reg2, reg);
 			libererReg(reg2);
 			Prog.ajouter(inst, "gauche a droite");
-			
+
 		} else {
 			generer_EXP(a.getFils2(), reg);
-			
+
 			Operande temp = Operande.creationOpIndirect(variableTemp, Registre.GB);
 			Prog.ajouter(Inst.creation2(Operation.STORE, reg, temp), "droite a gauche");
-			
+
 			generer_EXP(a.getFils1(), reg);
 
 			inst = Inst.creation2(op, temp, reg);
@@ -858,8 +1136,5 @@ class Generation {
 			}
 		}
    }
-   
+
 }
-
-
-
