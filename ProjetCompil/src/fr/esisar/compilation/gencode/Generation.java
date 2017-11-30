@@ -665,7 +665,7 @@ class Generation {
 
    private static void coder_COND(Arbre a,Boolean b,Etiq etq){
 	   Inst inst;
-	   Operande reg1 = Operande.opDirect(premierRegLibre()) ;
+	   Operande reg1 ;
 
 	   switch (a.getNoeud()){
 		case Ident :
@@ -686,6 +686,7 @@ class Generation {
 			}
 			/*identificateur*/
 			else {
+				Operande reg1 = Operande.opDirect(premierRegLibre()) ;
 				inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
 				Prog.ajouter(inst);
 				inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
@@ -703,7 +704,7 @@ class Generation {
 
 			break;
 		case Et :
-
+			
 			if (b){
 				Etiq etq_fin = Etiq.nouvelle("etiq_fin");
 				coder_COND(a.getFils1(),false,etq_fin);
@@ -737,6 +738,7 @@ class Generation {
 
 
 		case Egal :
+			reg1 = Operande.opDirect(premierRegLibre()) ;
 			operationArith(a, Operation.CMP, "Egal", reg1);
 			if (b) {
 				Prog.ajouter(Inst.creation1(Operation.BEQ, Operande.creationOpEtiq(etq)));
@@ -746,6 +748,7 @@ class Generation {
 			}
 			break ;
 		case InfEgal:
+			reg1 = Operande.opDirect(premierRegLibre()) ;
 			operationArith(a, Operation.CMP, "Inférieur ou égal", reg1);
 			if (b) {
 				Prog.ajouter(Inst.creation1(Operation.BLE, Operande.creationOpEtiq(etq)));
@@ -754,6 +757,7 @@ class Generation {
 			}
 			break ;
 		case SupEgal :
+			reg1 = Operande.opDirect(premierRegLibre()) ;
 			operationArith(a, Operation.CMP, "Supérieur ou égal", reg1);
 			if (b) {
 				Prog.ajouter(Inst.creation1(Operation.BGE, Operande.creationOpEtiq(etq)));
@@ -762,6 +766,7 @@ class Generation {
 			}
 			break ;
 		case NonEgal:
+			reg1 = Operande.opDirect(premierRegLibre()) ;
 			operationArith(a, Operation.CMP, "Non égal", reg1);
 			if (b) {
 				Prog.ajouter(Inst.creation1(Operation.BNE, Operande.creationOpEtiq(etq)));
@@ -770,6 +775,7 @@ class Generation {
 			}
 			break ;
 		case Inf :
+			reg1 = Operande.opDirect(premierRegLibre()) ;
 			operationArith(a, Operation.CMP, "Inférieur", reg1);
 			if (b) {
 				Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(etq)));
@@ -778,6 +784,7 @@ class Generation {
 			}
 			break ;
 		case Sup:
+			reg1 = Operande.opDirect(premierRegLibre()) ;
 			operationArith(a, Operation.CMP, "Supérieur", reg1);
 			if (b) {
 				Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(etq)));
