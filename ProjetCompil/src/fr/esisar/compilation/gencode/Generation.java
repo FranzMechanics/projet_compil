@@ -620,6 +620,44 @@ class Generation {
 			break ;
 	}
    }
+   
+   
+   /*private static void coder_COND_CMP(Arbre a, Operande reg, String comment){
+	   	boolean sens;
+	   	// Si on passe en argument de l'opération une variable, on aura besoin que d'un registre
+		if((a.getFils1().getNoeud() == Noeud.Ident)||(a.getFils2().getNoeud() == Noeud.Ident)){
+			sens = sensParcours(a, 1);
+		}
+		else{
+			sens = sensParcours(a, 2);
+		}
+		Prog.ajouterComment(comment+", ligne "+a.getNumLigne());
+		Inst inst;
+		if(sens == true){
+			generer_EXP(a.getFils1(), reg);
+
+			Operande reg2 = Operande.opDirect(premierRegLibre());
+			generer_EXP(a.getFils2(), reg2);
+
+			inst = Inst.creation2(op, reg2, reg);
+			libererReg(reg2);
+
+		} else {
+			generer_EXP(a.getFils2(), reg);
+
+			Operande temp = Operande.creationOpIndirect(variableTemp, Registre.GB);
+			Prog.ajouter(Inst.creation2(Operation.STORE, reg, temp), "droite a gauche");
+
+			generer_EXP(a.getFils1(), reg);
+
+			inst = Inst.creation2(op, temp, reg);
+			if(a.getFils1().getDecor().getType() == Type.Integer){
+				checkDebordement(a, reg);
+			}
+		}
+   }*/
+   
+   
 
    /**************************************************************************
     * coder_COND
@@ -627,8 +665,7 @@ class Generation {
 
    private static void coder_COND(Arbre a,Boolean b,Etiq etq){
 	   Inst inst;
-	   Operande reg1,reg2;
-
+	   Operande reg1 = Operande.opDirect(premierRegLibre()) ;
 
 	   switch (a.getNoeud()){
 		case Ident :
@@ -642,31 +679,21 @@ class Generation {
 					bool = "false";
 				}
 
-				System.out.println("ident bool" + a.getChaine());
-
 				if (a.getChaine().equals(bool)) {
-					System.out.println("\n\n\negal\n\n\n");
 					inst = Inst.creation1(Operation.BRA,Operande.creationOpEtiq(etq));
 					Prog.ajouter(inst);
 				} else { System.out.println("\n\n\nnon egal\n\n\n");}
 			}
 			/*identificateur*/
 			else {
-
+				inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
+				Prog.ajouter(inst);
+				inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
+				Prog.ajouter(inst);
 				if (b) {
-					reg1 = Operande.opDirect(premierRegLibre()) ;
-					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
-					Prog.ajouter(inst);
-					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
-					Prog.ajouter(inst);
 					inst = Inst.creation1(Operation.BNE,Operande.creationOpEtiq(etq));
 					Prog.ajouter(inst);
 				} else {
-					reg1 = Operande.opDirect(premierRegLibre()) ;
-					inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
-					Prog.ajouter(inst);
-					inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
-					Prog.ajouter(inst);
 					inst = Inst.creation1(Operation.BEQ,Operande.creationOpEtiq(etq));
 					Prog.ajouter(inst);
 				}
@@ -710,109 +737,56 @@ class Generation {
 
 
 		case Egal :
-			reg1 = Operande.opDirect(premierRegLibre()) ;
-			reg2 = Operande.opDirect(premierRegLibre()) ;
+			operationArith(a, Operation.CMP, "Egal", reg1);
 			if (b) {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BEQ, Operande.creationOpEtiq(etq)));
 			} else {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
+				
 				Prog.ajouter(Inst.creation1(Operation.BNE, Operande.creationOpEtiq(etq)));
 			}
-			libererReg(reg1);
-			libererReg(reg2);
 			break ;
 		case InfEgal:
-			reg1 = Operande.opDirect(premierRegLibre()) ;
-			reg2 = Operande.opDirect(premierRegLibre()) ;
+			operationArith(a, Operation.CMP, "Inférieur ou égal", reg1);
 			if (b) {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BLE, Operande.creationOpEtiq(etq)));
 			} else {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(etq)));
 			}
-			libererReg(reg1);
-			libererReg(reg2);
 			break ;
 		case SupEgal :
-			reg1 = Operande.opDirect(premierRegLibre()) ;
-			reg2 = Operande.opDirect(premierRegLibre()) ;
+			operationArith(a, Operation.CMP, "Supérieur ou égal", reg1);
 			if (b) {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BGE, Operande.creationOpEtiq(etq)));
 			} else {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(etq)));
 			}
-			libererReg(reg1);
-			libererReg(reg2);
 			break ;
 		case NonEgal:
-			reg1 = Operande.opDirect(premierRegLibre()) ;
-			reg2 = Operande.opDirect(premierRegLibre()) ;
+			operationArith(a, Operation.CMP, "Non égal", reg1);
 			if (b) {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BNE, Operande.creationOpEtiq(etq)));
 			} else {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BEQ, Operande.creationOpEtiq(etq)));
 			}
-			libererReg(reg1);
-			libererReg(reg2);
 			break ;
 		case Inf :
-			reg1 = Operande.opDirect(premierRegLibre()) ;
-			reg2 = Operande.opDirect(premierRegLibre()) ;
+			operationArith(a, Operation.CMP, "Inférieur", reg1);
 			if (b) {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(etq)));
 			} else {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BGE, Operande.creationOpEtiq(etq)));
 			}
-			libererReg(reg1);
-			libererReg(reg2);
 			break ;
 		case Sup:
-			reg1 = Operande.opDirect(premierRegLibre()) ;
-			reg2 = Operande.opDirect(premierRegLibre()) ;
+			operationArith(a, Operation.CMP, "Supérieur", reg1);
 			if (b) {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(etq)));
 			} else {
-				generer_EXP(a.getFils1(), reg1);
-				generer_EXP(a.getFils2(), reg2);
-				Prog.ajouter(Inst.creation2(Operation.CMP, reg2, reg1), "Comparaison");
 				Prog.ajouter(Inst.creation1(Operation.BLE, Operande.creationOpEtiq(etq)));
 			}
-			libererReg(reg1);
-			libererReg(reg2);
 			break ;
 	   }
-
+		libererReg(reg1);
    }
 
    private static void generer_LECTURE(Arbre a){
@@ -1010,9 +984,7 @@ class Generation {
 		case Plus :
 			operationArith(a, Operation.ADD, "Addition", reg);
 			Prog.ajouter(Inst.creation1(Operation.BOV, Operande.creationOpEtiq(Etiq.lEtiq("debordement"))));
-			/*if(a.getFils1().getDecor().getType() == Type.Integer){
-				checkDebordement(a.getFils1(), reg);
-			}*/
+			
 			break;
 
 		case Moins:
@@ -1132,7 +1104,7 @@ class Generation {
 			inst = Inst.creation2(op, temp, reg);
 			Prog.ajouter(inst, "droite a gauche");
 			if(a.getFils1().getDecor().getType() == Type.Integer){
-				checkDebordement(a.getFils2(), Operande.creationOpEntier(a.getFils2().getEntier()));
+				checkDebordement(a, reg);
 			}
 		}
    }
