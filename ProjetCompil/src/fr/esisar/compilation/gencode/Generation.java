@@ -87,7 +87,7 @@ class Generation {
        * réserver comme variable temporaire.
        */
       int nbVariables = generer_LISTE_DECL(a.getFils1());
-      variableTemp = nbVariables;
+      variableTemp = nbVariables+1;
       Prog.ajouterComment("Allocation de l'espace mémoire");
       Prog.ajouter(Inst.creation1(Operation.ADDSP, Operande.creationOpEntier(nbVariables+1)));
 
@@ -746,6 +746,7 @@ class Generation {
 				
 				Prog.ajouter(Inst.creation1(Operation.BNE, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
 			break ;
 		case InfEgal:
 			reg1 = Operande.opDirect(premierRegLibre()) ;
@@ -755,6 +756,7 @@ class Generation {
 			} else {
 				Prog.ajouter(Inst.creation1(Operation.BGT, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
 			break ;
 		case SupEgal :
 			reg1 = Operande.opDirect(premierRegLibre()) ;
@@ -764,6 +766,7 @@ class Generation {
 			} else {
 				Prog.ajouter(Inst.creation1(Operation.BLT, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
 			break ;
 		case NonEgal:
 			reg1 = Operande.opDirect(premierRegLibre()) ;
@@ -773,6 +776,7 @@ class Generation {
 			} else {
 				Prog.ajouter(Inst.creation1(Operation.BEQ, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
 			break ;
 		case Inf :
 			reg1 = Operande.opDirect(premierRegLibre()) ;
@@ -782,6 +786,7 @@ class Generation {
 			} else {
 				Prog.ajouter(Inst.creation1(Operation.BGE, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
 			break ;
 		case Sup:
 			reg1 = Operande.opDirect(premierRegLibre()) ;
@@ -791,9 +796,10 @@ class Generation {
 			} else {
 				Prog.ajouter(Inst.creation1(Operation.BLE, Operande.creationOpEtiq(etq)));
 			}
+			libererReg(reg1);
 			break ;
 	   }
-		libererReg(reg1);
+		
    }
 
    private static void generer_LECTURE(Arbre a){
