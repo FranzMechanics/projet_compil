@@ -686,7 +686,7 @@ class Generation {
 			}
 			/*identificateur*/
 			else {
-				Operande reg1 = Operande.opDirect(premierRegLibre()) ;
+				reg1 = Operande.opDirect(premierRegLibre()) ;
 				inst = Inst.creation2(Operation.LOAD,a.getDecor().getDefn().getOperande(),reg1);
 				Prog.ajouter(inst);
 				inst = Inst.creation2(Operation.CMP,Operande.creationOpEntier(0),reg1);
